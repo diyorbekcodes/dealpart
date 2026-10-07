@@ -1,10 +1,20 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+
 import "./globals.css";
+import { Lato } from "next/font/google";
+import Navbar from "@/components/layout/Navbar";
+
+import Footer from "@/components/layout/Footer";
+import QueryProvider from "@/providers/QueryProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+});
+const lato = Lato({
+  subsets: ["latin"],
+  weight: ["400", "700", "900"],
 });
 
 const geistMono = Geist_Mono({
@@ -23,7 +33,18 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body
+        className={`${lato.className} min-h-screen bg-white text-black dark:bg-black dark:text-white`}
+      >
+        <QueryProvider>
+          <Navbar />
+
+          <main className="min-h-screen overflow-y-auto scrollbar-hide pt-[160px]">
+            {children}
+            <Footer />
+          </main>
+        </QueryProvider>
+      </body>
     </html>
   );
 }

@@ -12,15 +12,218 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
+  margin: 0;
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+.group {
+  display: flex;
+  width: max-content;
+  animation: carousel 20s linear infinite;
+}
+
+@keyframes carousel {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.group:hover {
+  animation-play-state: paused;
+}
+.btn-effect {
+  transition: all 200ms ease-in-out;
+}
+
+.btn-effect:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(2, 51, 55, 0.25);
+}
+
+.btn-effect:active {
+  transform: scale(0.95);
+}
+
+.view-all-btn {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #6366f1;
+  border-radius: 200px;
+  padding: 12px 24px;
+  cursor: pointer;
+  background: white;
+  color: #6366f1;
+  font-weight: 500;
+  transition: all 0.25s ease;
+}
+
+.view-all-btn:hover {
+  background: #6366f1;
+  color: white;
+  border-color: #6366f1;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.25);
+}
+
+.view-all-btn:active {
+  transform: scale(0.95);
+}
+
+.view-all-btn::after {
+  content: "";
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  left: 50%;
+  top: 50%;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  transform: translate(-50%, -50%) scale(0);
+  pointer-events: none;
+}
+
+.view-all-btn:active::after {
+  animation: viewAllRipple 0.5s ease-out;
+}
+
+@keyframes viewAllRipple {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate(-50%, -50%) scale(25);
+    opacity: 0;
+  }
+}
+.scrollbar-hide {
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+/* like */
+@keyframes heartPop {
+  0% {
+    transform: scale(1);
+  }
+
+  30% {
+    transform: scale(1.5) rotate(-10deg);
+  }
+
+  50% {
+    transform: scale(0.85) rotate(10deg);
+  }
+
+  70% {
+    transform: scale(1.2) rotate(-5deg);
+  }
+
+  100% {
+    transform: scale(1.1) rotate(0deg);
+  }
+}
+
+.heart-animation {
+  animation: heartPop 0.4s ease-in-out;
+}
+.ant-carousel .slick-prev,
+.ant-carousel .slick-next {
+  width: 44px;
+  height: 44px;
+  z-index: 20;
+
+  position: absolute;
+
+  border-radius: 50%;
+
+  /* Glass effect */
+  background: rgba(255, 255, 255, 0.18) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  border: 1px solid rgba(255, 255, 255, 0.35) !important;
+
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.15),
+    inset 0 1px 1px rgba(255, 255, 255, 0.25);
+
+  transition:
+    transform 0.25s ease,
+    background 0.25s ease,
+    border-color 0.25s ease;
+
+  transform-origin: center center;
+}
+
+/* LEFT ARROW */
+.ant-carousel .slick-prev {
+  left: 20px;
+}
+
+/* RIGHT ARROW */
+.ant-carousel .slick-next {
+  right: 20px;
+}
+
+/* HOVER */
+.ant-carousel .slick-prev:hover,
+.ant-carousel .slick-next:hover {
+  background: rgba(255, 255, 255, 0.3) !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
+
+  transform: scale(1.08);
+  transform-origin: center center;
+}
+
+/* CLICK */
+.ant-carousel .slick-prev:active,
+.ant-carousel .slick-next:active {
+  transform: scale(0.95);
+  transform-origin: center center;
+}
+
+/* ARROW ICON */
+.ant-carousel .slick-prev::after,
+.ant-carousel .slick-next::after {
+  content: "";
+
+  position: absolute;
+
+  top: 50%;
+  left: 50%;
+
+  width: 10px;
+  height: 10px;
+
+  margin: 0 !important;
+
+  border-width: 0 2px 2px 0 !important;
+  border-style: solid !important;
+  border-color: #000000 !important;
+
+  transform-origin: center center;
+}
+
+/* LEFT ICON */
+.ant-carousel .slick-prev::after {
+  transform: translate(-35%, -50%) rotate(135deg);
+}
+
+/* RIGHT ICON */
+.ant-carousel .slick-next::after {
+  transform: translate(-65%, -50%) rotate(-45deg);
 }
