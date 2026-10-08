@@ -1,4 +1,3 @@
-
 import axios from "axios";
 
 const api = axios.create({
@@ -6,23 +5,27 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  const accessToken = localStorage.getItem("shopAccessToken");
-  if (accessToken) {
-    config.headers.Authorization = `Bearer ${accessToken}`;
+  if (typeof window !== "undefined") {
+    const accessToken = localStorage.getItem("crmAccessToken");
+
+    if (accessToken) {
+      config.headers.Authorization = `Bearer ${accessToken}`;
+    }
   }
+
   return config;
 });
 
 api.interceptors.response.use(
   (response) => response,
   async (err) => {
-    if (err.response?.status === 401) {
-      localStorage.removeItem("shopAccessToken");
-      localStorage.removeItem("shopRefreshToken");
-      //   localStorage.removeItem("crmAccessToken")
+    if (err.response?.status === 401 && typeof window !== "undefined") {
+      localStorage.removeItem("crmAccessToken");
+      localStorage.removeItem("crmRefreshToken");
+
       window.location.href = "/login";
-      return Promise.reject(err);
     }
+
     return Promise.reject(err);
   },
 );

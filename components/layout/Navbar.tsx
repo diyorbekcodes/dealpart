@@ -9,11 +9,18 @@ import LanguageSelect from "../ui/LanguageSelect";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-
+import { useMe } from "@/app/auth/useMe";
+import avatar2 from "../../assets/img/avatar2.png";
+import { Badge } from "antd";
+import { useCart } from "@/app/(shop)/cart/hook/useCart";
 export default function Navbar() {
+  const { data: cartData } = useCart();
+  const cartDatas = cartData?.data.items ?? [];
+
   const [showNavbar, setShowNavbar] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
-
+  const { data, isLoading } = useMe();
+  const user = data?.data;
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
@@ -81,14 +88,74 @@ export default function Navbar() {
               />
             </div>
 
-            <div className="flex gap-2 items-center hover:bg-gray-200 p-2 rounded-md">
+            {/* <div className="flex gap-2 items-center hover:bg-gray-200 p-2 rounded-md">
               <UserRound size={24} />
-            </div>
+            </div> */}
 
-            <button className="flex gap-2 items-center hover:bg-gray-200 p-2 rounded-md">
-              <ShoppingCart size={20} />
-              <p>Cart</p>
-            </button>
+            <Link href={"/cart"}>
+              <Badge count={cartDatas.length}>
+                <button
+                  className="
+    relative
+    flex
+    items-center
+    gap-2
+    overflow-hidden
+    rounded-md
+    p-2
+    transition-all
+    duration-300
+    ease-in-out
+    hover:text-white
+    active:scale-85
+    hover:scale-105
+    before:absolute
+    before:inset-y-0
+    before:left-0
+    before:w-0
+    before:bg-blue-500
+    before:transition-all
+    before:duration-300
+    before:ease-in-out
+    hover:before:w-full
+  "
+                >
+                  <ShoppingCart
+                    size={20}
+                    className="relative z-10 transition-colors duration-300 hover:text-white"
+                  />
+
+                  <p className="relative z-10 transition-colors duration-300">
+                    Cart
+                  </p>
+                </button>
+              </Badge>
+            </Link>
+            <div
+              className="
+    flex
+    h-12
+    w-12
+    cursor-pointer
+    items-center
+    justify-center
+    overflow-hidden
+    rounded-full
+    bg-white/70
+    backdrop-blur-xl
+    active:scale-95
+    hover:scale-105
+    transition-all
+    duration-300
+    ease-in-out
+  "
+            >
+              <Image
+                className="h-full w-full object-cover"
+                src={user?.avatar ?? avatar2}
+                alt="User avatar"
+              />
+            </div>
           </div>
         </div>
       </div>

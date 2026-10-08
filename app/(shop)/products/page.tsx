@@ -1,9 +1,10 @@
 "use client";
 
 import { Image, Select, Spin } from "antd";
-import { useProducts } from "./hook/Product";
+import { useProducts } from "./hook/Products";
 import { Heart, ShoppingCartPlus, Star } from "lucide-react";
 import { useState } from "react";
+import { useAddToCart } from "@/hook/AddCart";
 
 export default function Products() {
   const [likes, setLikes] = useState<Record<string, boolean>>({});
@@ -24,6 +25,9 @@ export default function Products() {
 
     return 0;
   });
+  const { mutate: addToCart,isPending } = useAddToCart();
+ 
+  
   if (isLoading) {
     return (
       <div className="flex min-h-[400px] items-center justify-center">
@@ -195,6 +199,13 @@ export default function Products() {
                   Hozir xarid qilish
                 </button>
                 <button
+                  onClick={() =>
+                    addToCart({
+                      productId: product.id,
+                      variantId: product.variants[0]?.id,
+                      quantity: 1,
+                    })
+                  }
                   className="px-5 py-2 active:scale-95 hover:-translate-y-[2px]
     hover:shadow-[0_6px_20px_rgba(2,51,55,0.25)]
     transition-all duration-200 ease-in-out

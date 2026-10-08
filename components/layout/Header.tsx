@@ -13,7 +13,7 @@ export default function Header() {
   const onChange = (currentSlide: number) => {};
   const { data: categoriesData, isLoading, isError } = useCategories();
   const { data: bannerData, isLoading: bannerLoading } = useBanner();
-  console.log(bannerData);
+
 
   return (
     <div>
