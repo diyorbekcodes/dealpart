@@ -2,7 +2,14 @@
 
 import logo from "../../assets/img/Frame 4121.png";
 import Image from "next/image";
-import { MapPin, Menu, ShoppingCart, UserRound } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronRight,
+  MapPin,
+  Menu,
+  ShoppingCart,
+  
+} from "lucide-react";
 
 import Search from "antd/es/input/Search";
 import LanguageSelect from "../ui/LanguageSelect";
@@ -13,14 +20,23 @@ import { useMe } from "@/app/auth/useMe";
 import avatar2 from "../../assets/img/avatar2.png";
 import { Badge } from "antd";
 import { useCart } from "@/app/(shop)/cart/hook/useCart";
+import { useWishlist } from "@/app/(shop)/wishlist/hook/useWishlist";
+import { useCategories } from "@/hook/Categories";
+
 export default function Navbar() {
   const { data: cartData } = useCart();
   const cartDatas = cartData?.data.items ?? [];
-
+  const { data: wishlistData } = useWishlist();
+  const wishlists = wishlistData?.data.items ?? [];
   const [showNavbar, setShowNavbar] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
-  const { data, isLoading } = useMe();
+  const { data } = useMe();
   const user = data?.data;
+  const avatarUrl = user?.avatar
+    ? user.avatar.startsWith("http")
+      ? user.avatar
+      : `https://oline-shop-backend.onrender.com${user.avatar}`
+    : avatar2;
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
@@ -51,6 +67,9 @@ export default function Navbar() {
   ];
 
   const pathname = usePathname();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { data: categoriesData } = useCategories();
+  const categories = categoriesData?.data ?? [];
 
   return (
     <div className="fixed top-0 left-0 z-50 w-full">
@@ -131,8 +150,9 @@ export default function Navbar() {
                 </button>
               </Badge>
             </Link>
-            <div
-              className="
+            <Link href={"/profil"}>
+              <div
+                className="
     flex
     h-12
     w-12
@@ -149,13 +169,16 @@ export default function Navbar() {
     duration-300
     ease-in-out
   "
-            >
-              <Image
-                className="h-full w-full object-cover"
-                src={user?.avatar ?? avatar2}
-                alt="User avatar"
-              />
-            </div>
+              >
+                <Image
+                  className="h-full w-full rounded-full object-cover"
+                  src={avatarUrl}
+                  alt="User avatar"
+                  width={96}
+                  height={96}
+                />
+              </div>
+            </Link>
           </div>
         </div>
       </div>
@@ -163,7 +186,7 @@ export default function Navbar() {
       {/* 2-chi div */}
       <div
         className={`
-          absolute top-[90px] left-0
+          absolute top-[90px] left-0 -z-10
           w-full h-[71px]
           flex justify-between items-center
           px-25
@@ -178,25 +201,67 @@ export default function Navbar() {
         `}
       >
         <div className="flex items-center gap-3">
-          <div
-            className="
-              flex items-center gap-2.5 p-2 rounded-md
-              cursor-pointer
-              bg-transparent
-              hover:bg-white/50
-              hover:backdrop-blur-lg
-              hover:border
-              hover:border-white/60
-              hover:shadow-sm
-            "
-          >
-            <Menu size={20} />
-            <p className="text-[16px] text-[#000000CC]">Menu</p>
-          </div>
+          <div className="relative">
+            {/* Menu button */}
+            <button
+              type="button"
+              onClick={() => setIsMenuOpen((prev) => !prev)}
+              className="
+      flex items-center gap-2.5 p-2 rounded-md
+      cursor-pointer bg-transparent
+      hover:bg-white/50
+      hover:backdrop-blur-lg
+      hover:border
+      hover:border-white/60
+      hover:shadow-sm
+    "
+            >
+              <Menu size={20} />
+              <span className="text-[16px] text-[#000000CC]">Menu</span>
+              <ChevronDown
+                size={16}
+                className={`transition-transform duration-200 ${
+                  isMenuOpen ? "rotate-180" : ""
+                }`}
+              />
+            </button>
 
+            {/* Dropdown */}
+            {isMenuOpen && (
+              <div className="absolute max-h-[300px] overflow-y-auto scrollbar-hide  left-0 top-full z-50 mt-2 w-64 overflow-hidden rounded-xl border border-gray-100 bg-white py-2 shadow-xl">
+                <p className="px-4 py-2 text-xs font-semibold uppercase tracking-wider text-gray-400">
+                  Categories
+                </p>
+
+                {categories.map((category) => (
+                  <Link
+                    key={category.id}
+                    href={`/products/${category.id}/${encodeURIComponent(category.name)}`}
+                    onClick={() => setIsMenuOpen(false)}
+                    className="
+            flex items-center justify-between px-4 py-3
+            text-sm text-[#023337] no-underline
+            transition-colors hover:bg-[#f0f8f2]
+            hover:!text-[#4EA674]
+          "
+                  >
+                    <span>{category.name}</span>
+                    <ChevronRight size={16} className="text-gray-400" />
+                  </Link>
+                ))}
+
+                {categories.length === 0 && (
+                  <p className="px-4 py-3 text-sm text-gray-400">
+                    Kategoriyalar mavjud emas
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
           <div className="border-r h-4 border-r-[#00000099]"></div>
 
-          <div
+          <Link
+            href={"/orders"}
             className="
               p-2 rounded-md cursor-pointer
               hover:bg-white/50
@@ -206,10 +271,11 @@ export default function Navbar() {
               hover:shadow-sm
             "
           >
-            Explore
-          </div>
+            My orders
+          </Link>
 
-          <div
+          <Link
+            href={"/deals"}
             className="
               p-2 rounded-md cursor-pointer
               hover:bg-white/50
@@ -220,20 +286,27 @@ export default function Navbar() {
             "
           >
             Deals
-          </div>
+          </Link>
 
-          <div
-            className="
-              p-2 rounded-md cursor-pointer
-              hover:bg-white/50
-              hover:backdrop-blur-lg
-              hover:border
-              hover:border-white/60
-              hover:shadow-sm
-            "
-          >
-            Saved
-          </div>
+          <Badge count={wishlists.length}>
+            <Link
+              href="/wishlist"
+              className="
+      inline-block p-2 rounded-md cursor-pointer
+      no-underline
+      !text-[16px]
+      !text-[#171717]
+      hover:!text-[#023337]
+      hover:bg-white/50
+      hover:backdrop-blur-lg
+      hover:border
+      hover:border-white/60
+      hover:shadow-sm
+    "
+            >
+              Wishlist
+            </Link>
+          </Badge>
         </div>
 
         <div className="flex items-center gap-8">

@@ -1,6 +1,7 @@
 "use client";
 
-import { AddCartItemRequest } from "@/app/cart/types/AddCart";
+
+import { AddCartItemRequest } from "@/app/(shop)/cart/types/addCartType";
 import api from "@/services/api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 

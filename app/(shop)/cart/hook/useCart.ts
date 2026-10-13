@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 
 import api from "@/services/api";
-import { CartResponse } from "../types/addCart";
+import { CartResponse } from "../types/addCartType";
 
 export const useCart = () => {
   return useQuery<CartResponse>({

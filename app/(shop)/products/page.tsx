@@ -1,33 +1,97 @@
 "use client";
-
-import { Image, Select, Spin } from "antd";
+import Link from "next/link";
+import { Image, Select, Spin, message } from "antd";
 import { useProducts } from "./hook/Products";
 import { Heart, ShoppingCartPlus, Star } from "lucide-react";
 import { useState } from "react";
 import { useAddToCart } from "@/hook/AddCart";
+import { useRemoveWishlist } from "../wishlist/hook/useRemoveWishlist";
+import { useWishlist } from "../wishlist/hook/useWishlist";
+import useWishlistAdd from "../wishlist/hook/useWishlistAdd";
+interface Props {
+  categoryId: string;
 
-export default function Products() {
-  const [likes, setLikes] = useState<Record<string, boolean>>({});
+}
+export default function Products({ categoryId }: Props) {
   const { data, isLoading, isError } = useProducts();
   const [sortBy, setSortBy] = useState("all");
-  const sortedProducts = [...(data?.data || [])].sort((a, b) => {
-    if (sortBy === "price-low") {
-      return a.price - b.price;
+
+  const { mutate: addToCart } = useAddToCart();
+
+  const { data: wishlistData } = useWishlist();
+
+  const { mutate: addWishlist } = useWishlistAdd();
+
+  const { mutate: removeWishlist } = useRemoveWishlist();
+
+  const [processingId, setProcessingId] = useState<string | null>(null);
+
+  const wishlistItems = wishlistData?.data?.items ?? [];
+
+  const isLiked = (productId: string) => {
+    if (productId in optimisticLikes) {
+      return optimisticLikes[productId];
     }
 
-    if (sortBy === "price-high") {
-      return b.price - a.price;
-    }
+    return wishlistItems.some(
+      (item: { productId?: string; product?: { id?: string } }) =>
+        item.productId === productId || item.product?.id === productId,
+    );
+  };
 
-    if (sortBy === "rating") {
-      return b.averageRating - a.averageRating;
-    }
+  const filteredProducts = [...(data?.data ?? [])].filter((product) => {
+    const matchesCategory =
+      !categoryId ||
+      categoryId === "all" ||
+      product.category?.id === categoryId;
 
+   
+
+    return matchesCategory ;
+  });
+  const sortedProducts = filteredProducts.sort((a, b) => {
+    if (sortBy === "price-low") return a.price - b.price;
+    if (sortBy === "price-high") return b.price - a.price;
+    if (sortBy === "rating") return b.averageRating - a.averageRating;
     return 0;
   });
-  const { mutate: addToCart,isPending } = useAddToCart();
- 
-  
+
+  const [optimisticLikes, setOptimisticLikes] = useState<
+    Record<string, boolean>
+  >({});
+  const handleWishlist = (productId: string) => {
+    if (processingId !== null) return;
+
+    const wasLiked = isLiked(productId);
+
+    // Yurakni darhol qizil qilish
+    setOptimisticLikes((prev) => ({
+      ...prev,
+      [productId]: !wasLiked,
+    }));
+
+    setProcessingId(productId);
+
+    const callbacks = {
+      onError: () => {
+        setOptimisticLikes((prev) => ({
+          ...prev,
+          [productId]: wasLiked,
+        }));
+
+        message.error("Amalni bajarishda xatolik yuz berdi");
+      },
+      onSettled: () => {
+        setProcessingId(null);
+      },
+    };
+
+    if (wasLiked) {
+      removeWishlist(productId, callbacks);
+    } else {
+      addWishlist({ id: productId }, callbacks);
+    }
+  };
   if (isLoading) {
     return (
       <div className="flex min-h-[400px] items-center justify-center">
@@ -46,94 +110,102 @@ export default function Products() {
 
   return (
     <section className="px-[20px] py-10">
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-[22px] font-bold">All products</h1>
-          <p className="text-[#64748B] text-[14px]">
-            {data?.data.length} ta mahsulot sotuvda bor
+          <h1 className="text-[22px] font-bold">
+            {data?.data?.find((product) => product.category?.id === categoryId)
+              ?.category?.name || "All products"}
+          </h1>
+          <p className="text-[14px] text-[#64748B]">
+            {filteredProducts.length} ta mahsulot sotuvda bor
           </p>
         </div>
-        <div>
-          <Select
-            value={sortBy}
-            onChange={setSortBy}
-            className="w-[220px]"
-            options={[
-              {
-                value: "all",
-                label: "All products",
-              },
-              {
-                value: "price-low",
-                label: "Price: Low to High",
-              },
-              {
-                value: "price-high",
-                label: "Price: High to Low",
-              },
-              {
-                value: "rating",
-                label: "Rating: High to Low",
-              },
-            ]}
-          />
-        </div>
+
+        <Select
+          value={sortBy}
+          onChange={setSortBy}
+          className="w-[220px]"
+          options={[
+            { value: "all", label: "All products" },
+            { value: "price-low", label: "Price: Low to High" },
+            { value: "price-high", label: "Price: High to Low" },
+            { value: "rating", label: "Rating: High to Low" },
+          ]}
+        />
       </div>
-      <div className="grid grid-cols-5 gap-5 mt-7">
+
+      <div className="mt-7 grid grid-cols-5 gap-5">
         {sortedProducts.map((product) => {
           const mainImage =
-            product.images.find((image) => image.isMain)?.url ||
-            product.images[0]?.url;
+            product.images?.find((image) => image.isMain)?.url ||
+            product.images?.[0]?.url;
+
+          const liked = isLiked(product.id);
+          const isProcessing = processingId === product.id;
 
           return (
-            <div
+            <Link
               key={product.id}
-              className="bg-[#FFFFFF] transition-all duration-300 hover:scale-105 relative shadow-[0px_1px_3px_0px_#00000033] p-3 rounded-[12px] flex flex-col h-full"
+              href={`/products/${product.id}`}
+              className="relative flex h-full flex-col rounded-[12px] bg-white p-3 shadow-[0px_1px_3px_0px_#00000033] transition-all duration-300 hover:scale-105"
             >
               {/* IMAGE */}
-              <div className=" w-full flex justify-center h-[180px]">
-                <Image
-                  src={mainImage}
-                  alt={product.images[0]?.alt || product.name}
-                  preview={false}
-                  className="!w-full !h-[180px] !object-contain rounded-lg !bg-white"
-                />
+              <div className="relative flex h-[180px] w-full justify-center">
+                {mainImage ? (
+                  <Image
+                    src={
+                      mainImage.startsWith("http")
+                        ? mainImage
+                        : `https://oline-shop-backend.onrender.com${mainImage}`
+                    }
+                    alt={product.images?.[0]?.alt || product.name}
+                    preview={false}
+                    className="!h-[180px] !w-full !bg-white !object-contain"
+                  />
+                ) : (
+                  <div className="flex h-full items-center justify-center text-gray-400">
+                    Rasm mavjud emas
+                  </div>
+                )}
 
                 {/* LIKE */}
-                <div
-                  onClick={() =>
-                    setLikes((prev) => ({
-                      ...prev,
-                      [product.id]: !prev[product.id],
-                    }))
+
+                <button
+                  type="button"
+                  aria-label={
+                    liked ? "Wishlistdan olib tashlash" : "Wishlistga qo'shish"
                   }
-                  className="absolute top-2 right-2 h-7 w-7 flex items-center justify-center bg-white rounded-full cursor-pointer shadow-sm hover:scale-110 active:scale-90 transition-transform duration-200"
+                  disabled={isProcessing}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleWishlist(product.id);
+                  }}
+                  className={`absolute right-2 top-2 z-10 flex h-9 w-9 items-center justify-center rounded-full shadow-md transition-all duration-200 hover:scale-110 active:scale-90 ${
+                    liked ? "bg-pink-100" : "bg-white hover:bg-pink-50"
+                  }`}
                 >
                   <Heart
-                    size={17}
-                    style={{
-                      color: likes[product.id] ? "#ef4444" : "#374151",
-                      fill: likes[product.id] ? "#ef4444" : "transparent",
-                    }}
-                    className={likes[product.id] ? "heart-animation" : ""}
+                    size={19}
+                    color={liked ? "#ef4444" : "#374151"}
+                    fill={liked ? "#ef4444" : "transparent"}
+                    className="transition-none"
                   />
-                </div>
+                </button>
               </div>
 
               {/* INFO */}
               <div className="mt-3">
-                <div>
-                  <p className="text-[22px] font-bold line-clamp-1">
-                    {product.name}
-                  </p>
+                <p className="line-clamp-1 text-[22px] font-bold">
+                  {product.name}
+                </p>
 
-                  <p className="text-[16px] font-normal text-[#00000099] line-clamp-2">
-                    {product.shortDescription || product.description}
-                  </p>
-                </div>
+                <p className="line-clamp-2 text-[16px] font-normal text-[#00000099]">
+                  {product.shortDescription || product.description}
+                </p>
 
                 {/* RATING */}
-                <div className="flex gap-2 items-center justify-start mt-2">
+                <div className="mt-2 flex items-center gap-2">
                   <div className="flex gap-1.5">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <Star
@@ -149,28 +221,26 @@ export default function Products() {
                     ))}
                   </div>
 
-                  <div>
-                    <p className="text-[14px] font-bold text-[#6B7280]">
-                      ({product.reviewsCount} reviews)
-                    </p>
-                  </div>
+                  <p className="text-[14px] font-bold text-[#6B7280]">
+                    ({product.reviewsCount} reviews)
+                  </p>
                 </div>
 
                 {/* PRICE */}
-                <div className="flex flex-col gap-2 mt-2">
+                <div className="mt-2 flex flex-col gap-2">
                   {product.oldPrice > product.price && (
-                    <p className="text-[#00000099] text-[16px] line-through">
-                      ${product.oldPrice.toLocaleString()}
+                    <p className="text-[16px] text-[#00000099] line-through">
+                      {product.oldPrice.toLocaleString("uz-UZ")} UZS
                     </p>
                   )}
 
                   <div className="flex items-center gap-2">
-                    <p className="text-[#0c4bfa] text-[22px] font-bold">
-                      ${product.price.toLocaleString()}
+                    <p className="text-[22px] font-bold text-[#0c4bfa]">
+                      {product.price.toLocaleString("uz-UZ")} UZS
                     </p>
 
                     {product.oldPrice > product.price && (
-                      <p className="text-[#fd0404] font-bold">
+                      <p className="font-bold text-[#fd0404]">
                         -{product.discountPercent}%
                       </p>
                     )}
@@ -179,42 +249,35 @@ export default function Products() {
               </div>
 
               {/* BUTTONS */}
-              <div className="flex justify-between items-center mt-auto pt-5">
+              <div className="mt-auto flex items-center justify-between pt-5">
                 <button
-                  className="
-    px-3 py-2
-    bg-blue-600
-    hover:bg-blue-700
-    hover:-translate-y-[2px]
-    hover:shadow-[0_6px_20px_rgba(37,99,235,0.3)]
-    active:scale-95
-    transition-all duration-200 ease-in-out
-    rounded-lg
-    cursor-pointer
-    text-white
-    text-[16px]
-    font-medium
-  "
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }}
+                  className="cursor-pointer rounded-lg bg-blue-600 px-3 py-2 text-[16px] font-medium text-white transition-all duration-200 hover:-translate-y-[2px] hover:bg-blue-700 hover:shadow-[0_6px_20px_rgba(37,99,235,0.3)] active:scale-95"
                 >
                   Hozir xarid qilish
                 </button>
+
                 <button
-                  onClick={() =>
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
                     addToCart({
                       productId: product.id,
-                      variantId: product.variants[0]?.id,
+                      variantId: product.variants?.[0]?.id,
                       quantity: 1,
-                    })
-                  }
-                  className="px-5 py-2 active:scale-95 hover:-translate-y-[2px]
-    hover:shadow-[0_6px_20px_rgba(2,51,55,0.25)]
-    transition-all duration-200 ease-in-out
-    bg-[#18a8ad] rounded-lg cursor-pointer text-[#FFFFFF]"
+                    });
+                  }}
+                  className="cursor-pointer rounded-lg bg-[#18a8ad] px-5 py-2 text-white transition-all duration-200 hover:-translate-y-[2px] hover:shadow-[0_6px_20px_rgba(2,51,55,0.25)] active:scale-95"
                 >
                   <ShoppingCartPlus />
                 </button>
               </div>
-            </div>
+            </Link>
           );
         })}
       </div>

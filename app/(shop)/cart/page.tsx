@@ -8,13 +8,18 @@ import { useUpdateCartItem } from "./hook/useUpdateCartItem";
 import { useRemoveItem } from "./hook/useRemoveItem";
 import { useRemoveAll } from "./hook/useRemoveAll";
 
+import OrderModal from "./components/OrderModal";
+
+import { Spin } from "antd";
+import { useCheckout } from "@/context/CheckoutContext";
 export default function Cart() {
   const { data, isLoading } = useCart();
-  const { mutate: removeItem } = useRemoveItem();
-  const { mutate: clearCart } = useRemoveAll();
   const cartData = data?.data;
-
   const cartItems = cartData?.items ?? [];
+  const { mutate: removeItem, isPending } = useRemoveItem();
+  const { mutate: clearCart, isPending: allPending } = useRemoveAll();
+
+const { isCheckoutOpen, setIsCheckoutOpen } = useCheckout();
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("en-US").format(price);
@@ -129,17 +134,25 @@ export default function Cart() {
 
         <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
           {/* Cart Items */}
-          <div className="rounded-[24px] border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
-            <div className="mb-2 flex items-center justify-between border-b border-gray-100 pb-5">
-              <h2 className="text-[20px] font-semibold text-[#023337]">
-                Cart Items
-              </h2>
+          <div className="rounded-[24px] border relative border-gray-200 bg-white p-4 shadow-sm sm:p-6">
+            {allPending ? (
+              <div className=" absolute left-[50%] top-[50%]">
+                <div className="w-15 h-15 flex justify-center items-center bg-gray-100 rounded-lg">
+                  <Spin />
+                </div>
+              </div>
+            ) : (
+              <div>
+                <div className="mb-2 flex items-center justify-between border-b border-gray-100 pb-5">
+                  <h2 className="text-[20px] font-semibold text-[#023337]">
+                    Cart Items
+                  </h2>
 
-              <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => clearCart()}
-                  className="
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => clearCart()}
+                      className="
         rounded-full
         px-3
         py-1
@@ -151,21 +164,21 @@ export default function Cart() {
         hover:bg-red-50
         active:scale-95
       "
-                >
-                  Clear Cart
-                </button>
+                    >
+                      Clear Cart
+                    </button>
 
-                <span className="rounded-full bg-[#eaf8e7] px-3 py-1 text-[13px] font-semibold text-[#4EA674]">
-                  {cartData?.itemsCount} items
-                </span>
-              </div>
-            </div>
+                    <span className="rounded-full bg-[#eaf8e7] px-3 py-1 text-[13px] font-semibold text-[#4EA674]">
+                      {cartData?.itemsCount} items
+                    </span>
+                  </div>
+                </div>
 
-            <div>
-              {cartItems.map((item) => (
-                <div
-                  key={item.id}
-                  className="
+                <div>
+                  {cartItems.map((item) => (
+                    <div
+                      key={item.id}
+                      className="
                     flex
                     flex-col
                     gap-5
@@ -176,60 +189,68 @@ export default function Cart() {
                     sm:flex-row
                     sm:items-center
                   "
-                >
-                  {/* Image */}
-                  <div className="flex h-[130px] w-full shrink-0 items-center justify-center overflow-hidden rounded-[18px] bg-[#f7f8f8] sm:h-[130px] sm:w-[130px]">
-                    <img
-                      src={item.product.image}
-                      alt={item.product.name}
-                      className="h-full w-full object-contain p-3"
-                    />
-                  </div>
-
-                  {/* Product info */}
-                  <div className="flex min-w-0 flex-1 flex-col">
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <h3 className="text-[18px] font-semibold text-[#023337]">
-                          {item.product.name}
-                        </h3>
-
-                        <p className="mt-1 text-[13px] text-gray-400">
-                          {item.product.brand}
-                        </p>
-
-                        <p className="mt-1 text-[12px] text-gray-400">
-                          SKU: {item.product.sku}
-                        </p>
+                    >
+                      {/* Image */}
+                      <div className="flex h-[130px] w-full shrink-0 items-center justify-center overflow-hidden rounded-[18px] bg-[#f7f8f8] sm:h-[130px] sm:w-[130px]">
+                        <img
+                          src={item.product.image}
+                          alt={item.product.name}
+                          className="h-full w-full object-contain p-3"
+                        />
                       </div>
 
-                      <button
-                        onClick={() => removeItem({ id: item.id })}
-                        type="button"
-                        className="
-                          flex
-                          h-9
-                          w-9
-                          shrink-0
-                          items-center
-                          justify-center
-                          rounded-full
-                          text-gray-400
-                          transition-all
-                          duration-200
-                          hover:bg-red-50
-                          hover:text-red-500
-                          active:scale-90
-                        "
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    </div>
+                      {/* Product info */}
+                      <div className="flex min-w-0 flex-1 flex-col">
+                        <div className="flex items-start justify-between gap-4">
+                          <div>
+                            <h3 className="text-[18px] font-semibold text-[#023337]">
+                              {item.product.name}
+                            </h3>
 
-                    <div className="mt-5 flex flex-wrap items-center justify-between gap-4">
-                      {/* Quantity */}
-                      <div
-                        className="
+                            <p className="mt-1 text-[13px] text-gray-400">
+                              {item.product.brand}
+                            </p>
+
+                            <p className="mt-1 text-[12px] text-gray-400">
+                              SKU: {item.product.sku}
+                            </p>
+                          </div>
+
+                          <button
+                            onClick={() => removeItem({ id: item.id })}
+                            type="button"
+                            disabled={isPending}
+                            className="
+    flex
+    h-9
+    w-9
+    shrink-0
+    items-center
+    justify-center
+    rounded-full
+    p-2
+    text-gray-400
+    transition-all
+    duration-200
+    hover:bg-red-50
+    hover:text-red-500
+    active:scale-90
+    disabled:cursor-not-allowed
+    disabled:opacity-50
+  "
+                          >
+                            {isPending ? (
+                              <span className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-red-500" />
+                            ) : (
+                              <Trash2 size={18} />
+                            )}
+                          </button>
+                        </div>
+
+                        <div className="mt-5 flex flex-wrap items-center justify-between gap-4">
+                          {/* Quantity */}
+                          <div
+                            className="
                           flex
                           items-center
                           rounded-full
@@ -238,17 +259,17 @@ export default function Cart() {
                           bg-white
                           p-1
                         "
-                      >
-                        <button
-                          disabled={item.quantity <= 1}
-                          onClick={() =>
-                            updateCartItem({
-                              id: item.id,
-                              quantity: item.quantity - 1,
-                            })
-                          }
-                          type="button"
-                          className="
+                          >
+                            <button
+                              disabled={item.quantity <= 1}
+                              onClick={() =>
+                                updateCartItem({
+                                  id: item.id,
+                                  quantity: item.quantity - 1,
+                                })
+                              }
+                              type="button"
+                              className="
                             flex
                             h-8
                             w-8
@@ -260,23 +281,23 @@ export default function Cart() {
                             hover:bg-gray-100
                             active:scale-90
                           "
-                        >
-                          <Minus size={15} />
-                        </button>
+                            >
+                              <Minus size={15} />
+                            </button>
 
-                        <span className="min-w-[35px] text-center text-[14px] font-semibold text-[#023337]">
-                          {item.quantity}
-                        </span>
+                            <span className="min-w-[35px] text-center text-[14px] font-semibold text-[#023337]">
+                              {item.quantity}
+                            </span>
 
-                        <button
-                          onClick={() =>
-                            updateCartItem({
-                              id: item.id,
-                              quantity: item.quantity + 1,
-                            })
-                          }
-                          type="button"
-                          className="
+                            <button
+                              onClick={() =>
+                                updateCartItem({
+                                  id: item.id,
+                                  quantity: item.quantity + 1,
+                                })
+                              }
+                              type="button"
+                              className="
                             flex
                             h-8
                             w-8
@@ -289,26 +310,28 @@ export default function Cart() {
                             hover:text-[#4EA674]
                             active:scale-90
                           "
-                        >
-                          <Plus size={15} />
-                        </button>
-                      </div>
+                            >
+                              <Plus size={15} />
+                            </button>
+                          </div>
 
-                      {/* Price */}
-                      <div className="text-right">
-                        <p className="text-[13px] text-gray-400">
-                          {formatPrice(item.price)} UZS × {item.quantity}
-                        </p>
+                          {/* Price */}
+                          <div className="text-right">
+                            <p className="text-[13px] text-gray-400">
+                              {formatPrice(item.price)} UZS × {item.quantity}
+                            </p>
 
-                        <p className="mt-1 text-[18px] font-bold text-[#023337]">
-                          {formatPrice(item.lineTotal)} UZS
-                        </p>
+                            <p className="mt-1 text-[18px] font-bold text-[#023337]">
+                              {formatPrice(item.lineTotal)} UZS
+                            </p>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </div>
+            )}
           </div>
 
           {/* Summary */}
@@ -348,6 +371,7 @@ export default function Cart() {
             </div>
 
             <button
+              onClick={() => setIsCheckoutOpen(true)}
               type="button"
               className="
                 mt-7
@@ -402,6 +426,12 @@ export default function Cart() {
           </div>
         </div>
       </div>
+      <OrderModal
+        isOpen={isCheckoutOpen}
+        onClose={() => setIsCheckoutOpen(false)}
+        itemsCount={cartData?.itemsCount ?? 0}
+        subtotal={cartData?.subtotal ?? 0}
+      />
     </main>
   );
 }

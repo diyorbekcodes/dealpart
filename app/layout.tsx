@@ -3,6 +3,8 @@ import { Geist, Geist_Mono, Lato } from "next/font/google";
 
 import "./globals.css";
 import QueryProvider from "@/providers/QueryProvider";
+import { Check } from "lucide-react";
+import { CheckoutProvider } from "@/context/CheckoutContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,7 +39,9 @@ export default function RootLayout({
       <body
         className={`${lato.className} min-h-screen bg-white text-black dark:bg-black dark:text-white`}
       >
-        <QueryProvider>{children}</QueryProvider>
+        <QueryProvider>
+          <CheckoutProvider>{children}</CheckoutProvider>
+        </QueryProvider>
       </body>
     </html>
   );

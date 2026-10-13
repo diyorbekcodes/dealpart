@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight, CircleArrowOutUpRight } from "lucide-react";
-
+import Link from "next/link";
 import card6 from "../../assets/img/card6.png";
-import card7 from "../../assets/img/card7.png";
+
 import card8 from "../../assets/img/card8.png";
 import card9 from "../../assets/img/caed9.png";
 import card11 from "../../assets/img/card11.png";
@@ -14,6 +14,7 @@ import { Heart, Star } from "lucide-react";
 
 import { useCategories } from "@/hook/Categories";
 import { Spin } from "antd";
+import { useBrand } from "@/app/(shop)/brand/hook/useBrand";
 
 const testimonials = [
   {
@@ -60,6 +61,8 @@ export default function Main() {
       behavior: "smooth",
     });
   };
+  const { data } = useBrand();
+
   const { data: categoriesData, isLoading, isError } = useCategories();
   return (
     <div className="mt-[80px]">
@@ -177,8 +180,9 @@ export default function Main() {
                 {/* CARD */}
                 {categoriesData?.data.map((item) => {
                   return (
-                    <div
+                    <Link
                       key={item.id}
+                      href={`/products/${item.id}/${encodeURIComponent(item.name)}`}
                       className="card flex shrink-0 flex-col items-center rounded-lg border border-[#E5E7EB] px-4 py-5"
                     >
                       <div className="h-[140px] w-[148px]">
@@ -192,7 +196,7 @@ export default function Main() {
                       <p className="mt-4 text-[16px] font-bold text-[#000000]">
                         {item.name}
                       </p>
-                    </div>
+                    </Link>
                   );
                 })}
 
@@ -359,7 +363,7 @@ export default function Main() {
           </p>
         </div>
         <div className="relative mt-10 w-full overflow-hidden py-5">
-          <div className="group flex w-max items-center gap-6">
+          <div className="carousel-track flex w-max items-center gap-6">
             {[...testimonials, ...testimonials].map((item, index) => (
               <div
                 key={index}
@@ -421,6 +425,40 @@ export default function Main() {
           GET STARTED
         </button>
       </div>
+      <section className="mt-[100px] px-[44px]">
+        <div className="flex justify-between items-center">
+          <h1 className="text-[#000000] text-[32px] text-[700] font-bold">
+            Mashhur brendlar
+          </h1>
+          <div>
+            <Link href={"/brand"}>
+              <button className="border-[#000000] view-all-btn cursor-pointer border rounded-[200px] px-6 py-3">
+                View All
+              </button>
+            </Link>
+          </div>
+        </div>
+        <div className="relative mt-10 w-full overflow-hidden py-5">
+          <div className="carousel-track flex w-max items-center gap-6">
+            {[...(data?.data ?? []), ...(data?.data ?? [])].map(
+              (item, index) => (
+                <div
+                  key={`${item.id}-${index}`}
+                  className="flex h-[110px] w-[185px] shrink-0 items-center justify-center rounded-lg bg-white p-5 shadow-[0px_1px_3px_0px_#00000033]"
+                >
+                  <Link href={`/brand/${item.id}`}>
+                    <img
+                      src={item.logo}
+                      alt={item.name}
+                      className="h-[70px] w-full object-contain"
+                    />
+                  </Link>
+                </div>
+              ),
+            )}
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

@@ -31,7 +31,7 @@ export default function LanguageSelect() {
   };
 
   return (
-    <div className="relative z-[9999] inline-block">
+    <div className="relative z-[99999] inline-block">
       {/* BUTTON */}
       <button
         type="button"
