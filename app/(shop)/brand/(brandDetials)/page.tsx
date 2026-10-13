@@ -102,7 +102,7 @@ export default function BrandDetials({ brandId }: Props) {
     <section className="w-full px-[44px] py-8">
       <div className="mb-6">
         <h1 className="text-[28px] font-bold text-[#023337]">
-          Brend mahsulotlari
+          {filteredProducts[0]?.brand?.name ?? "Brend"} mahsulotlari
         </h1>
 
         <p className="mt-2 text-[14px] text-[#64748B]">

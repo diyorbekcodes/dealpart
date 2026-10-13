@@ -7,8 +7,6 @@ import {
   Star,
   Truck,
   ShieldCheck,
-  Minus,
-  Plus,
   Package,
   ChevronRight,
   LoaderCircle,
@@ -16,8 +14,10 @@ import {
 
 import { useAddToCart } from "@/hook/AddCart";
 import { useProductDetails } from "../hook/useProductDetails";
-import { useCart } from "../../cart/hook/useCart";
-import { useUpdateCartItem } from "../../cart/hook/useUpdateCartItem";
+import { useWishlist } from "../../wishlist/hook/useWishlist";
+import useWishlistAdd from "../../wishlist/hook/useWishlistAdd";
+import { useRemoveWishlist } from "../../wishlist/hook/useRemoveWishlist";
+import { message } from "antd";
 
 type ProductsProps = {
   productId?: string;
@@ -29,10 +29,28 @@ export default function ProductsDetials({ productId }: ProductsProps) {
   const { mutate: addToCart, isPending: isAddingToCart } = useAddToCart();
 
   const [selectedImage, setSelectedImage] = useState("");
-  const { data, isLoading } = useCart();
-  const cartData = data?.data;
-  const cartItems = cartData?.items ?? [];
-  const { mutate: updateCartItem } = useUpdateCartItem();
+
+  const { data: wishlistData } = useWishlist();
+
+  const [processingId, setProcessingId] = useState<string | null>(null);
+  const { mutate: addWishlist } = useWishlistAdd();
+
+  const { mutate: removeWishlist } = useRemoveWishlist();
+  const wishlistItems = wishlistData?.data?.items ?? [];
+  const [optimisticLikes, setOptimisticLikes] = useState<
+    Record<string, boolean>
+  >({});
+
+  const isLiked = (productId: string) => {
+    if (productId in optimisticLikes) {
+      return optimisticLikes[productId];
+    }
+
+    return wishlistItems.some(
+      (item: { productId?: string; product?: { id?: string } }) =>
+        item.productId === productId || item.product?.id === productId,
+    );
+  };
   useEffect(() => {
     if (!product) {
       setSelectedImage("");
@@ -79,6 +97,41 @@ export default function ProductsDetials({ productId }: ProductsProps) {
     });
   };
 
+  const handleWishlist = (productId: string) => {
+    if (processingId !== null) return;
+
+    const wasLiked = isLiked(productId);
+
+    // Yurakni darhol qizil qilish
+    setOptimisticLikes((prev) => ({
+      ...prev,
+      [productId]: !wasLiked,
+    }));
+
+    setProcessingId(productId);
+
+    const callbacks = {
+      onError: () => {
+        setOptimisticLikes((prev) => ({
+          ...prev,
+          [productId]: wasLiked,
+        }));
+
+        message.error("Amalni bajarishda xatolik yuz berdi");
+      },
+      onSettled: () => {
+        setProcessingId(null);
+      },
+    };
+
+    if (wasLiked) {
+      removeWishlist(productId, callbacks);
+    } else {
+      addWishlist({ id: productId }, callbacks);
+    }
+  };
+  const liked = isLiked(product.id);
+  const isProcessing = processingId === product.id;
   return (
     <div className="mx-auto w-full max-w-[1440px] px-4 py-6 md:px-8 lg:px-12">
       {/* Breadcrumb */}
@@ -146,19 +199,31 @@ export default function ProductsDetials({ productId }: ProductsProps) {
 
         {/* Product information */}
         <div className="flex flex-col">
-          <div className="mb-3 flex items-center justify-between gap-3">
+          <div className="mb-3 relative flex items-center justify-between gap-3">
             <span className="rounded-lg bg-[#EAF5EE] px-3 py-1.5 text-sm font-medium text-[#328653]">
               {product.category.name}
             </span>
 
             <button
               type="button"
-              aria-label="Add to wishlist"
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-gray-200 transition hover:border-red-300 hover:bg-red-50"
+              aria-label={
+                liked ? "Wishlistdan olib tashlash" : "Wishlistga qo'shish"
+              }
+              disabled={isProcessing}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleWishlist(product.id);
+              }}
+              className={`absolute right-2 top-2 z-10 flex h-9 w-9 items-center justify-center rounded-full shadow-md transition-all duration-200 hover:scale-110 active:scale-90 ${
+                liked ? "bg-pink-100" : "bg-white hover:bg-pink-50"
+              }`}
             >
               <Heart
-                size={21}
-                className="text-gray-600 transition hover:text-red-500"
+                size={19}
+                color={liked ? "#ef4444" : "#374151"}
+                fill={liked ? "#ef4444" : "transparent"}
+                className="transition-none"
               />
             </button>
           </div>
