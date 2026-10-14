@@ -1,3 +1,4 @@
+import { Product } from "@/app/(shop)/products/types/ProductsType";
 import { useRemoveWishlist } from "@/app/(shop)/wishlist/hook/useRemoveWishlist";
 import useWishlistAdd from "@/app/(shop)/wishlist/hook/useWishlistAdd";
 import { useAddToCart } from "@/hook/AddCart";
@@ -5,7 +6,17 @@ import { Image, message } from "antd";
 import { Heart, ShoppingCartPlus, Star } from "lucide-react";
 
 import Link from "next/link";
-
+import { Dispatch, SetStateAction } from "react";
+type CardProductProps = {
+  product: Product;
+  mainImage: string;
+  liked: boolean;
+  isProcessing: boolean;
+  isLiked: (productId: string) => boolean;
+  processingId: string | null;
+  setProcessingId: Dispatch<SetStateAction<string | null>>;
+  setOptimisticLikes: Dispatch<SetStateAction<Record<string, boolean>>>;
+};
 export default function CardProduct({
   product,
   mainImage,
@@ -15,7 +26,7 @@ export default function CardProduct({
   processingId,
   setProcessingId,
   setOptimisticLikes,
-}) {
+}: CardProductProps) {
   const { mutate: addWishlist } = useWishlistAdd();
 
   const { mutate: removeWishlist } = useRemoveWishlist();
@@ -70,7 +81,6 @@ export default function CardProduct({
                   : `https://oline-shop-backend.onrender.com${mainImage}`
               }
               alt={product.images?.[0]?.alt || product.name}
-            
               preview={false}
               className="!h-[180px] !w-full !bg-white !object-contain"
             />
