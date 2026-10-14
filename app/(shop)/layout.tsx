@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://dealpartuz-alpha.vercel.app"),
 
   title: {
-    default: "Bizda",
+    default: "Dealpart",
     template: "%s | Dealpart",
   },
 
