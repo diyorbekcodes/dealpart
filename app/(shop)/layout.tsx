@@ -6,7 +6,7 @@ export const metadata: Metadata = {
 
   title: {
     default: "Bizda",
-    template: "%s | Bizda",
+    template: "%s | Dealpart",
   },
 
   description: "Bizda — qurilish uchun kerakli mahsulotlar onlayn do‘koni.",
