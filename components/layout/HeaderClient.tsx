@@ -55,11 +55,11 @@ export default function HeaderClient({
         >
           {bannerData.map((item) => (
             <div key={item.id}>
-              <div className="relative h-screen w-full overflow-hidden">
+              <div className="relative h-[450px] w-full overflow-hidden">
                 <img
                   src={item.image}
                   alt={item.title}
-                  className="absolute inset-0 h-full w-full object-contain"
+                  className="absolute inset-0 h-full w-full object-cover"
                 />
 
                

@@ -24,7 +24,9 @@ type ProductsProps = {
 };
 
 export default function ProductsDetials({ productId }: ProductsProps) {
+
   const { product, loading, error } = useProductDetails(productId);
+  
 
   const { mutate: addToCart, isPending: isAddingToCart } = useAddToCart();
 
