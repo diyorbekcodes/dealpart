@@ -1,4 +1,7 @@
-import Products from "../../page";
+import { getProducts } from "../../page";
+import Products from "../../Products";
+
+export const revalidate = 60;
 
 type Props = {
   params: Promise<{
@@ -8,12 +11,8 @@ type Props = {
 };
 
 export default async function CategoryPage({ params }: Props) {
-  const { id, name } = await params;
+  const { id } = await params;
+  const products = await getProducts();
 
-  return (
-    <div>
-      
-      <Products categoryId={id} />
-    </div>
-  );
+  return <Products categoryId={id} products={products} />;
 }

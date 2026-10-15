@@ -12,20 +12,33 @@ import OrderModal from "./components/OrderModal";
 
 import { Spin } from "antd";
 import { useCheckout } from "@/context/CheckoutContext";
+import { useState } from "react";
 export default function Cart() {
+  const [removingId, setRemovingId] = useState<string | null>(null);
   const { data, isLoading } = useCart();
   const cartData = data?.data;
   const cartItems = cartData?.items ?? [];
   const { mutate: removeItem, isPending } = useRemoveItem();
   const { mutate: clearCart, isPending: allPending } = useRemoveAll();
 
-const { isCheckoutOpen, setIsCheckoutOpen } = useCheckout();
+  const { isCheckoutOpen, setIsCheckoutOpen } = useCheckout();
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("en-US").format(price);
   };
   const { mutate: updateCartItem } = useUpdateCartItem();
-  // Loading
+  const handleRemoveItem = (id: string) => {
+    setRemovingId(id);
+
+    removeItem(
+      { id },
+      {
+        onSettled: () => {
+          setRemovingId(null);
+        },
+      },
+    );
+  };
   if (isLoading) {
     return (
       <main className="min-h-screen bg-[#f8faf9] px-4 py-10 sm:px-6 lg:px-10">
@@ -217,29 +230,12 @@ const { isCheckoutOpen, setIsCheckoutOpen } = useCheckout();
                           </div>
 
                           <button
-                            onClick={() => removeItem({ id: item.id })}
+                            onClick={() => handleRemoveItem(item.id)}
                             type="button"
-                            disabled={isPending}
-                            className="
-    flex
-    h-9
-    w-9
-    shrink-0
-    items-center
-    justify-center
-    rounded-full
-    p-2
-    text-gray-400
-    transition-all
-    duration-200
-    hover:bg-red-50
-    hover:text-red-500
-    active:scale-90
-    disabled:cursor-not-allowed
-    disabled:opacity-50
-  "
+                            disabled={removingId === item.id}
+                            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full p-2 text-gray-400 transition-all duration-200 hover:bg-red-50 hover:text-red-500 active:scale-90 disabled:cursor-not-allowed disabled:opacity-50"
                           >
-                            {isPending ? (
+                            {removingId === item.id ? (
                               <span className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-red-500" />
                             ) : (
                               <Trash2 size={18} />

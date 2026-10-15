@@ -1,34 +1,49 @@
 import { Product } from "@/app/(shop)/products/types/ProductsType";
 import { useRemoveWishlist } from "@/app/(shop)/wishlist/hook/useRemoveWishlist";
+import { useWishlist } from "@/app/(shop)/wishlist/hook/useWishlist";
 import useWishlistAdd from "@/app/(shop)/wishlist/hook/useWishlistAdd";
 import { useAddToCart } from "@/hook/AddCart";
 import { Image, message } from "antd";
 import { Heart, ShoppingCartPlus, Star } from "lucide-react";
 
 import Link from "next/link";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 type CardProductProps = {
   product: Product;
   mainImage: string;
-  liked: boolean;
+
   isProcessing: boolean;
-  isLiked: (productId: string) => boolean;
+
   processingId: string | null;
   setProcessingId: Dispatch<SetStateAction<string | null>>;
-  setOptimisticLikes: Dispatch<SetStateAction<Record<string, boolean>>>;
 };
 export default function CardProduct({
   product,
   mainImage,
-  liked,
+
   isProcessing,
-  isLiked,
+
   processingId,
   setProcessingId,
-  setOptimisticLikes,
 }: CardProductProps) {
-  const { mutate: addWishlist } = useWishlistAdd();
+  const { data: wishlistData } = useWishlist();
+  const wishlistItems = wishlistData?.data?.items ?? [];
 
+  const { mutate: addWishlist } = useWishlistAdd();
+  const isLiked = (productId: string) => {
+    if (productId in optimisticLikes) {
+      return optimisticLikes[productId];
+    }
+
+    return wishlistItems.some(
+      (item: { productId?: string; product?: { id?: string } }) =>
+        item.productId === productId || item.product?.id === productId,
+    );
+  };
+  const [optimisticLikes, setOptimisticLikes] = useState<
+    Record<string, boolean>
+  >({});
+  const liked = isLiked(product.id);
   const { mutate: removeWishlist } = useRemoveWishlist();
   const { mutate: addToCart } = useAddToCart();
   const handleWishlist = (productId: string) => {
@@ -64,6 +79,14 @@ export default function CardProduct({
       addWishlist({ id: productId }, callbacks);
     }
   };
+  function formatPrice(price: number) {
+    return new Intl.NumberFormat("en-US", {
+      useGrouping: true,
+      maximumFractionDigits: 0,
+    })
+      .format(price)
+      .replace(/,/g, " ");
+  }
   return (
     <div>
       <Link
@@ -150,13 +173,13 @@ export default function CardProduct({
           <div className="mt-2 flex flex-col gap-2">
             {product.oldPrice > product.price && (
               <p className="text-[16px] text-[#00000099] line-through">
-                {product.oldPrice.toLocaleString("uz-UZ")} UZS
+                {formatPrice(product.oldPrice)} UZS
               </p>
             )}
 
             <div className="flex items-center gap-2">
               <p className="text-[22px] font-bold text-[#0c4bfa]">
-                {product.price.toLocaleString("uz-UZ")} UZS
+                {formatPrice(product.price)} UZS
               </p>
 
               {product.oldPrice > product.price && (
