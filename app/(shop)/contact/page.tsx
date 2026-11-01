@@ -1,5 +1,4 @@
-
-"use client"
+"use client";
 import {
   MapPin,
   Phone,
@@ -9,44 +8,43 @@ import {
   MessageCircle,
   Headphones,
   ArrowRight,
-} from 'lucide-react'
+} from "lucide-react";
 
 const contactInfo = [
   {
     icon: Phone,
-    title: 'Phone Number',
-    value: '+998 90 123 45 67',
-    subtitle: 'Mon - Sat, 9:00 AM - 6:00 PM',
+    title: "Phone Number",
+    value: "+998 90 123 45 67",
+    subtitle: "Mon - Sat, 9:00 AM - 6:00 PM",
   },
   {
     icon: Mail,
-    title: 'Email Address',
-    value: 'support@onlineshop.com',
-    subtitle: 'We reply within 24 hours',
+    title: "Email Address",
+    value: "support@onlineshop.com",
+    subtitle: "We reply within 24 hours",
   },
   {
     icon: MapPin,
-    title: 'Our Location',
-    value: 'Tashkent, Uzbekistan',
-    subtitle: 'Visit our office',
+    title: "Our Location",
+    value: "Tashkent, Uzbekistan",
+    subtitle: "Visit our office",
   },
   {
     icon: Clock,
-    title: 'Working Hours',
-    value: '09:00 AM - 06:00 PM',
-    subtitle: 'Monday - Saturday',
+    title: "Working Hours",
+    value: "09:00 AM - 06:00 PM",
+    subtitle: "Monday - Saturday",
   },
-]
+];
 
 export default function Contact() {
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    alert('Thank you! Your message has been submitted.')
-  }
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    alert("Thank you! Your message has been submitted.");
+  };
 
   return (
     <main className="bg-white text-[#023337]">
-
       {/* Hero Section */}
       <section className="bg-[#F3F8F5] px-5 py-20">
         <div className="mx-auto max-w-7xl text-center">
@@ -60,9 +58,9 @@ export default function Contact() {
           </h1>
 
           <p className="mx-auto mt-6 max-w-2xl text-base leading-8 text-gray-600 md:text-lg">
-            Have a question, suggestion, or need assistance?
-            Our team is always ready to help you.
-            Contact us and let's make your shopping experience better.
+            Have a question, suggestion, or need assistance? Our team is always
+            ready to help you. Contact us and let's make your shopping
+            experience better.
           </p>
 
           <div className="mt-8 flex justify-center">
@@ -95,7 +93,7 @@ export default function Contact() {
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {contactInfo.map((item, index) => {
-            const Icon = item.icon
+            const Icon = item.icon;
 
             return (
               <div
@@ -106,30 +104,20 @@ export default function Contact() {
                   <Icon size={26} />
                 </div>
 
-                <h3 className="mt-5 text-lg font-bold">
-                  {item.title}
-                </h3>
+                <h3 className="mt-5 text-lg font-bold">{item.title}</h3>
 
-                <p className="mt-3 break-words font-semibold">
-                  {item.value}
-                </p>
+                <p className="mt-3 break-words font-semibold">{item.value}</p>
 
-                <p className="mt-2 text-sm text-gray-500">
-                  {item.subtitle}
-                </p>
+                <p className="mt-2 text-sm text-gray-500">{item.subtitle}</p>
               </div>
-            )
+            );
           })}
         </div>
       </section>
 
       {/* Contact Form */}
-      <section
-        id="contact-form"
-        className="bg-[#F8FAF9] px-5 py-20"
-      >
+      <section id="contact-form" className="bg-[#F8FAF9] px-5 py-20">
         <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-2">
-
           {/* Left Content */}
           <div className="flex flex-col justify-center">
             <span className="text-sm font-bold uppercase tracking-widest text-[#4EA674]">
@@ -142,9 +130,9 @@ export default function Contact() {
             </h2>
 
             <p className="mt-6 max-w-lg leading-8 text-gray-600">
-              Whether you have questions about products, orders,
-              payments, or delivery, feel free to send us a message.
-              We will get back to you as soon as possible.
+              Whether you have questions about products, orders, payments, or
+              delivery, feel free to send us a message. We will get back to you
+              as soon as possible.
             </p>
 
             <div className="mt-10 flex items-center gap-4">
@@ -176,16 +164,13 @@ export default function Contact() {
 
           {/* Form */}
           <div className="rounded-3xl border border-gray-100 bg-white p-7 shadow-sm md:p-10">
-            <h3 className="text-2xl font-bold">
-              Send a Message
-            </h3>
+            <h3 className="text-2xl font-bold">Send a Message</h3>
 
             <p className="mt-2 text-sm text-gray-500">
               Fill out the form below and we'll contact you.
             </p>
 
             <form onSubmit={handleSubmit} className="mt-8 space-y-5">
-
               <div>
                 <label className="mb-2 block text-sm font-semibold">
                   Full Name
@@ -227,7 +212,7 @@ export default function Contact() {
                   Your Message
                 </label>
                 <textarea
-                  rows="5"
+                  rows={5}
                   placeholder="Write your message here..."
                   required
                   className="w-full resize-none rounded-xl border border-gray-200 px-4 py-3 outline-none transition focus:border-[#4EA674] focus:ring-2 focus:ring-[#4EA674]/10"
@@ -241,7 +226,6 @@ export default function Contact() {
                 Send Message
                 <Send size={19} />
               </button>
-
             </form>
           </div>
         </div>
@@ -262,9 +246,7 @@ export default function Contact() {
         <div className="flex h-[350px] flex-col items-center justify-center rounded-3xl bg-[#F3F8F5] text-center">
           <MapPin size={45} className="text-[#4EA674]" />
 
-          <h3 className="mt-4 text-xl font-bold">
-            Tashkent, Uzbekistan
-          </h3>
+          <h3 className="mt-4 text-xl font-bold">Tashkent, Uzbekistan</h3>
 
           <p className="mt-2 text-sm text-gray-500">
             Our online store is always available for you.
@@ -280,7 +262,6 @@ export default function Contact() {
           </a>
         </div>
       </section>
-
     </main>
-  )
+  );
 }
