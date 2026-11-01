@@ -35,7 +35,7 @@ export default function Brand() {
               className="flex h-[110px] w-[185px] shrink-0 items-center justify-center rounded-lg bg-white p-5 shadow-[0px_1px_3px_0px_#00000033]"
             >
               <Link
-                href={`/products/${item.id}`}
+                href={`/brand/${item.id}`}
                 className="flex h-full w-full items-center justify-center"
               >
                 <img

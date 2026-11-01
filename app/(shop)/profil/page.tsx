@@ -2,6 +2,9 @@
 import avatar2 from "../../../assets/img/avatar2.png";
 import { useEffect, useState } from "react";
 import { useMe } from "@/app/auth/useMe";
+import { useLogout } from "./hook/useLogout";
+import { useRouter } from "next/navigation";
+import { LogOut } from "lucide-react";
 import {
   UserRound,
   Mail,
@@ -14,7 +17,6 @@ import {
   EyeOff,
   LoaderCircle,
   CheckCircle2,
-  CircleUserRound,
   ChevronRight,
 } from "lucide-react";
 import { MeUser } from "@/app/auth/types/AuthType";
@@ -31,6 +33,24 @@ type ProfileForm = {
 };
 
 export default function ProfilePage() {
+  const router = useRouter();
+  const logoutMutation = useLogout();
+
+  const handleLogout = async () => {
+    try {
+      await logoutMutation.mutateAsync();
+    } catch (error) {
+      console.error("Logout error:", error);
+    } finally {
+      localStorage.removeItem("crmAccessToken");
+      localStorage.removeItem("crmRefreshToken");
+      localStorage.removeItem("customer");
+
+      window.dispatchEvent(new Event("auth-change"));
+
+      window.location.href = "/";
+    }
+  };
   const { data, isLoading } = useMe();
   const changePasswordMutation = useChangePassword();
   // API javobi data.data ko'rinishida bo'lsa ham ishlaydi
@@ -319,6 +339,20 @@ export default function ProfilePage() {
                 )}
               </button>
             </nav>
+            <button
+              type="button"
+              onClick={handleLogout}
+              disabled={logoutMutation.isPending}
+              className="mx-4 mb-4 flex w-[calc(100%-2rem)] items-center gap-3 rounded-xl  px-4 py-3.5 text-sm font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-50"
+            >
+              {logoutMutation.isPending ? (
+                <LoaderCircle size={19} className="animate-spin" />
+              ) : (
+                <LogOut size={19} />
+              )}
+
+              {logoutMutation.isPending ? "Logging out..." : "Logout"}
+            </button>
 
             <div className="mx-4 mb-4 flex gap-3 rounded-xl bg-[#F5FAF6] p-4">
               <ShieldCheck size={22} className="shrink-0 text-[#4EA674]" />

@@ -22,8 +22,9 @@ api.interceptors.response.use(
     if (err.response?.status === 401 && typeof window !== "undefined") {
       localStorage.removeItem("crmAccessToken");
       localStorage.removeItem("crmRefreshToken");
+      localStorage.removeItem("customer");
 
-      window.location.href = "/login";
+      window.dispatchEvent(new Event("auth-change"));
     }
 
     return Promise.reject(err);

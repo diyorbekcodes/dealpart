@@ -5,10 +5,12 @@ import Image from "next/image";
 import {
   ChevronDown,
   ChevronRight,
+  Heart,
+  LogIn,
   MapPin,
   Menu,
   ShoppingCart,
-  
+  UserRound,
 } from "lucide-react";
 
 import Search from "antd/es/input/Search";
@@ -106,78 +108,88 @@ export default function Navbar() {
                 allowClear
               />
             </div>
-
-            {/* <div className="flex gap-2 items-center hover:bg-gray-200 p-2 rounded-md">
-              <UserRound size={24} />
-            </div> */}
-
-            <Link href={"/cart"}>
-              <Badge count={cartDatas.length}>
-                <button
-                  className="
-    relative
-    flex
-    items-center
-    gap-2
-    overflow-hidden
-    rounded-md
-    p-2
-    transition-all
-    duration-300
-    ease-in-out
-    hover:text-white
-    active:scale-85
-    hover:scale-105
-    before:absolute
-    before:inset-y-0
-    before:left-0
-    before:w-0
-    before:bg-blue-500
-    before:transition-all
-    before:duration-300
-    before:ease-in-out
-    hover:before:w-full
-  "
-                >
-                  <ShoppingCart
-                    size={20}
-                    className="relative z-10 transition-colors duration-300 hover:text-white"
-                  />
-
-                  <p className="relative z-10 transition-colors duration-300">
-                    Cart
-                  </p>
-                </button>
-              </Badge>
-            </Link>
-            <Link href={"/profil"}>
-              <div
+            {/* Wishlist */}
+            <Badge count={wishlists.length}>
+              <Link
+                href="/wishlist"
+                aria-label="Sevimlilar"
                 className="
-    flex
-    h-12
-    w-12
-    cursor-pointer
-    items-center
-    justify-center
-    overflow-hidden
-    rounded-full
-    bg-white/70
-    backdrop-blur-xl
-    active:scale-95
-    hover:scale-105
-    transition-all
-    duration-300
-    ease-in-out
-  "
+      group flex h-11 w-11 items-center justify-center
+      rounded-xl bg-white/80 text-[#023337]!
+      backdrop-blur-md transition-all duration-300
+      hover:-translate-y-0.5
+      hover:text-blue-500!
+      hover:bg-[#4EA674]/10
+      hover:text-blue-500
+      hover:shadow-md
+      active:scale-95
+    "
               >
-                <Image
-                  className="h-full w-full rounded-full object-cover"
-                  src={avatarUrl}
-                  alt="User avatar"
-                  width={96}
-                  height={96}
+                <Heart
+                  size={21}
+                  strokeWidth={1.8}
+                  className="transition-all duration-300 group-hover:scale-110"
                 />
-              </div>
+              </Link>
+            </Badge>
+
+            {/* Cart */}
+            <Badge count={cartDatas.length}>
+              <Link
+                href="/cart"
+                aria-label="Savatcha"
+                className="
+      group flex h-11 items-center justify-center gap-2
+      rounded-xl bg-white/80 px-3  text-[#023337]!
+      backdrop-blur-md transition-all duration-300
+      hover:-translate-y-0.5
+      hover:text-blue-500!
+      hover:bg-blue-500
+      hover:text-white
+      hover:shadow-md
+      active:scale-95
+    "
+              >
+                <ShoppingCart
+                  size={20}
+                  className="transition-transform duration-300 group-hover:scale-110"
+                />
+              </Link>
+            </Badge>
+
+            <Link href={data ? "/profil" : "/login"} className="shrink-0">
+              {data ? (
+                <div className="flex h-12 w-12 cursor-pointer items-center justify-center overflow-hidden rounded-full bg-white/70 backdrop-blur-xl transition-all duration-300 hover:scale-105 active:scale-95">
+                  <Image
+                    className="h-full w-full rounded-full object-cover"
+                    src={avatarUrl}
+                    alt="User avatar"
+                    width={96}
+                    height={96}
+                  />
+                </div>
+              ) : (
+                <div
+                  className="
+        group flex items-center justify-center gap-2
+        whitespace-nowrap rounded-xl
+        bg-[#023337] px-5 py-3
+        text-sm font-semibold text-white
+        shadow-md shadow-[#023337]/20
+        transition-all duration-300
+        hover:-translate-y-0.5
+        hover:bg-blue-500
+        hover:shadow-lg
+        active:scale-95
+      "
+                >
+                  <LogIn
+                    size={18}
+                    className="transition-transform duration-300 group-hover:translate-x-1"
+                  />
+                  <span>Kirish</span>
+                </div>
+              )}
             </Link>
           </div>
         </div>
@@ -287,26 +299,6 @@ export default function Navbar() {
           >
             Deals
           </Link>
-
-          <Badge count={wishlists.length}>
-            <Link
-              href="/wishlist"
-              className="
-      inline-block p-2 rounded-md cursor-pointer
-      no-underline
-      !text-[16px]
-      !text-[#171717]
-      hover:!text-[#023337]
-      hover:bg-white/50
-      hover:backdrop-blur-lg
-      hover:border
-      hover:border-white/60
-      hover:shadow-sm
-    "
-            >
-              Wishlist
-            </Link>
-          </Badge>
         </div>
 
         <div className="flex items-center gap-8">

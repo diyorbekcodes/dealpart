@@ -6,7 +6,7 @@ import {
   ShoppingBag,
   ShoppingCartPlus,
   ArrowRight,
-  Trash2,
+ 
   ArrowLeft,
   Star,
 } from "lucide-react";
@@ -247,7 +247,7 @@ export default function Wishlist() {
                         {product.name}
                       </h2>
 
-                      <p className="mt-1 line-clamp-2 min-h-[40px] text-sm text-[#00000099]">
+                      <p className="line-clamp-2 text-[16px] font-normal text-[#00000099]">
                         {product.shortDescription || product.description || ""}
                       </p>
                     </div>
