@@ -1,3 +1,4 @@
+"use client"
 import { Product } from "@/app/(shop)/products/types/ProductsType";
 import { useRemoveWishlist } from "@/app/(shop)/wishlist/hook/useRemoveWishlist";
 import { useWishlist } from "@/app/(shop)/wishlist/hook/useWishlist";
@@ -7,25 +8,15 @@ import { Image, message } from "antd";
 import { Heart, ShoppingCartPlus, Star } from "lucide-react";
 
 import Link from "next/link";
-import { Dispatch, SetStateAction, useState } from "react";
+import {  useState } from "react";
 type CardProductProps = {
   product: Product;
   mainImage: string;
 
-  isProcessing: boolean;
-
-  processingId: string | null;
-  setProcessingId: Dispatch<SetStateAction<string | null>>;
+ 
 };
-export default function CardProduct({
-  product,
-  mainImage,
-
-  isProcessing,
-
-  processingId,
-  setProcessingId,
-}: CardProductProps) {
+export default function CardProduct({ product, mainImage }: CardProductProps) {
+  const [processingId, setProcessingId] = useState<string | null>(null);
   const { data: wishlistData } = useWishlist();
   const wishlistItems = wishlistData?.data?.items ?? [];
 
@@ -120,7 +111,7 @@ export default function CardProduct({
             aria-label={
               liked ? "Wishlistdan olib tashlash" : "Wishlistga qo'shish"
             }
-            disabled={isProcessing}
+           
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();

@@ -5,6 +5,7 @@ import "./globals.css";
 import QueryProvider from "@/providers/QueryProvider";
 import { Check } from "lucide-react";
 import { CheckoutProvider } from "@/context/CheckoutContext";
+import { CarouselProvider } from "@/context/CarouselContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

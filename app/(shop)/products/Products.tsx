@@ -1,19 +1,13 @@
-"use client";
-
-import { Select } from "antd";
-import { useState } from "react";
 import CardProduct from "@/components/ui/CardProduct";
 import { Product } from "./types/ProductsType";
+import SortProducts from "@/components/ui/SortBy";
 
 interface Props {
   categoryId: string;
-  products: any[];
+  products: Product[];
 }
 
 export default function Products({ categoryId, products }: Props) {
-  const [sortBy, setSortBy] = useState("all");
-  const [processingId, setProcessingId] = useState<string | null>(null);
-
   const filteredProducts = [...products].filter((product) => {
     const matchesCategory =
       !categoryId ||
@@ -21,15 +15,6 @@ export default function Products({ categoryId, products }: Props) {
       product.category?.id === categoryId;
 
     return matchesCategory;
-  });
-
-  const sortedProducts = [...filteredProducts].sort((a, b) => {
-    if (sortBy === "price-low") return a.price - b.price;
-    if (sortBy === "price-high") return b.price - a.price;
-    if (sortBy === "rating") {
-      return b.averageRating - a.averageRating;
-    }
-    return 0;
   });
 
   const categoryName =
@@ -47,21 +32,13 @@ export default function Products({ categoryId, products }: Props) {
           </p>
         </div>
 
-        <Select
-          value={sortBy}
-          onChange={setSortBy}
-          className="w-[220px]"
-          options={[
-            { value: "all", label: "All products" },
-            { value: "price-low", label: "Price: Low to High" },
-            { value: "price-high", label: "Price: High to Low" },
-            { value: "rating", label: "Rating: High to Low" },
-          ]}
-        />
+        <div>
+          <SortProducts />
+        </div>
       </div>
 
       <div className="mt-7 grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-        {sortedProducts.map((product: Product) => {
+        {filteredProducts.map((product: Product) => {
           const mainImage =
             product.images?.find((image) => image.isMain)?.url ||
             product.images?.[0]?.url;
@@ -71,9 +48,6 @@ export default function Products({ categoryId, products }: Props) {
               key={product.id}
               product={product}
               mainImage={mainImage}
-              isProcessing={processingId === product.id}
-              processingId={processingId}
-              setProcessingId={setProcessingId}
             />
           );
         })}

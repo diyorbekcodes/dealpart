@@ -1,6 +1,5 @@
 "use client";
 
-
 import { Carousel } from "antd";
 import Link from "next/link";
 
@@ -36,7 +35,7 @@ export default function HeaderClient({
         {categoriesData.map((item) => (
           <Link
             key={item.id}
-             href={`/products/${item.id}/${encodeURIComponent(item.name)}`}
+            href={`/products/${item.id}/${encodeURIComponent(item.name)}`}
             className="cursor-pointer px-[10px] py-2 text-[16px] text-[#023337] hover:text-blue-500"
           >
             {item.name}
@@ -47,6 +46,7 @@ export default function HeaderClient({
       {/* Banner Carousel */}
       {bannerData.length > 0 ? (
         <Carousel
+          
           afterChange={onChange}
           autoplay
           autoplaySpeed={3000}
@@ -61,8 +61,6 @@ export default function HeaderClient({
                   alt={item.title}
                   className="absolute inset-0 h-full w-full object-cover"
                 />
-
-               
               </div>
             </div>
           ))}
@@ -72,8 +70,6 @@ export default function HeaderClient({
           <p>Banner topilmadi</p>
         </div>
       )}
-
-      
     </div>
   );
 }
