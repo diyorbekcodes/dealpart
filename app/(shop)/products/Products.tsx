@@ -1,6 +1,6 @@
 import CardProduct from "@/components/ui/CardProduct";
 import { Product } from "./types/ProductsType";
-import SortProducts from "@/components/ui/SortBy";
+
 
 interface Props {
   categoryId: string;
@@ -32,9 +32,7 @@ export default function Products({ categoryId, products }: Props) {
           </p>
         </div>
 
-        <div>
-          <SortProducts />
-        </div>
+       
       </div>
 
       <div className="mt-7 grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
