@@ -90,7 +90,7 @@ export default function About() {
           </div>
 
           <div className="relative">
-            <div className="relative w-full max-w-[600px] h-[450px] mx-auto">
+            <div className="relative mx-auto h-[220px] w-full max-w-[600px] sm:h-[320px] md:h-[450px]">
               <Image
                 src={aboutfor}
                 alt="About Our Online Shop"

@@ -37,7 +37,7 @@ export default function ShopLayout({
     <>
       <Navbar />
 
-      <main className="min-h-screen overflow-y-auto scrollbar-hide pt-[160px]">
+      <main className="min-h-screen overflow-x-hidden pt-[152px] md:pt-[140px]">
         {children}
       </main>
       <Footer />

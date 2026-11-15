@@ -8,12 +8,14 @@ import { useUpdateCartItem } from "./hook/useUpdateCartItem";
 import { useRemoveItem } from "./hook/useRemoveItem";
 import { useRemoveAll } from "./hook/useRemoveAll";
 
-import OrderModal from "./components/OrderModal";
+
 
 import { Spin } from "antd";
-import { useCheckout } from "@/context/CheckoutContext";
+
 import { useState } from "react";
+
 export default function Cart() {
+ 
   const [removingId, setRemovingId] = useState<string | null>(null);
   const { data, isLoading } = useCart();
   const cartData = data?.data;
@@ -21,7 +23,7 @@ export default function Cart() {
   const { mutate: removeItem, isPending } = useRemoveItem();
   const { mutate: clearCart, isPending: allPending } = useRemoveAll();
 
-  const { isCheckoutOpen, setIsCheckoutOpen } = useCheckout();
+
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("en-US").format(price);
@@ -366,35 +368,13 @@ export default function Cart() {
               </div>
             </div>
 
-            <button
-              onClick={() => setIsCheckoutOpen(true)}
-              type="button"
-              className="
-                mt-7
-                flex
-                w-full
-                items-center
-                justify-center
-                gap-2
-                rounded-[14px]
-                bg-[#023337]
-                px-5
-                py-3.5
-                text-[15px]
-                font-semibold
-                text-white
-                transition-all
-                duration-300
-                hover:-translate-y-[2px]
-                hover:bg-[#03484d]
-                hover:shadow-lg
-                active:translate-y-0
-              "
+            <Link
+              href="/cart/checkout"
+              className="mt-7 flex w-full items-center justify-center gap-2 rounded-[14px] bg-[#023337] px-5 py-3.5 text-[15px] font-semibold text-white transition-all duration-300 hover:-translate-y-[2px] hover:bg-[#03484d] hover:shadow-lg active:translate-y-0"
             >
               Proceed to Checkout
               <ArrowRight size={18} />
-            </button>
-
+            </Link>
             <Link
               href="/products"
               className="
@@ -422,12 +402,6 @@ export default function Cart() {
           </div>
         </div>
       </div>
-      <OrderModal
-        isOpen={isCheckoutOpen}
-        onClose={() => setIsCheckoutOpen(false)}
-        itemsCount={cartData?.itemsCount ?? 0}
-        subtotal={cartData?.subtotal ?? 0}
-      />
     </main>
   );
 }

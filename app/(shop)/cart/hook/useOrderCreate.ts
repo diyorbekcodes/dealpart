@@ -1,15 +1,12 @@
-
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/services/api";
+import type { OrderPayload } from "../types/addCartType";
 
 export const useOrderCreate = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (payload: {
-      address: string;
-      notes: string;
-    }) => {
+    mutationFn: async (payload: OrderPayload) => {
       try {
         const response = await api.post("/orders", payload);
         return response.data;
@@ -21,6 +18,7 @@ export const useOrderCreate = () => {
         throw error;
       }
     },
+
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["orders"] });
       queryClient.invalidateQueries({ queryKey: ["cart"] });

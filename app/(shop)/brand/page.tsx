@@ -7,7 +7,7 @@ export default function Brand() {
   const { data } = useBrand();
 
   return (
-    <section className="mt-12 px-[44px] w-full">
+    <section className="mt-12 w-full px-4 sm:px-6 lg:px-11">
       {/* Section Header */}
       <div className="mb-2 flex items-end justify-between gap-4">
         <div>
@@ -35,7 +35,7 @@ export default function Brand() {
               className="flex h-[110px] w-[185px] shrink-0 items-center justify-center rounded-lg bg-white p-5 shadow-[0px_1px_3px_0px_#00000033]"
             >
               <Link
-                href={`/brand/${item.id}`}
+                 href={`/products?brand=${item.slug}`}
                 className="flex h-full w-full items-center justify-center"
               >
                 <img

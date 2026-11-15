@@ -14,9 +14,9 @@ export default function Footer() {
   const router = useRouter();
   const { data } = useMe();
   return (
-    <div className="bg-[#EAF8E7] mt-[100px] ">
-      <div className="px-[44px] flex flex-col justify-center h-[448px]  border-b border-b-[#4EA675]">
-        <div className="flex justify-around items-center">
+    <div className="mt-16 bg-[#EAF8E7] md:mt-[100px]">
+      <div className="border-b border-b-[#4EA675] px-4 py-10 sm:px-8 lg:px-11">
+        <div className="grid grid-cols-2 gap-8 md:grid-cols-3 lg:grid-cols-5 lg:items-start">
           <div className="flex flex-col gap-6">
             <h1 className="text-[#000000] text-[18px] font-medium">
               Company Info
@@ -39,8 +39,8 @@ export default function Footer() {
               <p className="text-[#000000CC]">Sustainability Practices</p>
             </div>
           </div>
-          <div className="flex justify-center items-center">
-            <Image src={bidlogo} alt="img" />
+          <div className="col-span-2 flex items-center justify-center md:col-span-1">
+            <Image src={bidlogo} alt="img" className="h-auto w-[140px] sm:w-[180px]" />
           </div>
           <div className="flex flex-col gap-6">
             <h1 className="text-[#000000] text-[18px] font-medium">
@@ -65,34 +65,29 @@ export default function Footer() {
             </div>
           </div>
         </div>
-        <div className="flex justify-around items-center mt-[48px]">
-          <div></div>
-          {data ? (
-            <div></div>
-          ) : (
-            <div className="flex flex-col items-center gap-4">
+        <div className="mt-10 flex flex-col items-center gap-8 lg:flex-row lg:justify-around">
+          {data ? null : (
+            <div className="flex w-full max-w-[396px] flex-col items-center gap-4">
               <h1 className="text-[#4EA674]  font-medium">Newsletter Signup</h1>
-              <div className="bg-[#C1E6BA] rounded-[200px] w-[396px] h-[48px] flex items-center p-2">
+              <div className="flex min-h-12 w-full items-center rounded-[200px] bg-[#C1E6BA] p-2">
                 <Input
                   className="!border-0  !outline-none !shadow-none !bg-transparent focus:!border-0 focus:!shadow-none focus:!outline-none"
                   placeholder="Enter your email address"
                 />
                 <button
                   onClick={() => router.push("/register")}
-                  className="text-[#000000]   transition-all duration-200 ease-in-out
-
-hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] active:scale-95 bg-[#FFFFFF] cursor-pointer rounded-[200px] font-medium px-[25px] py-[8px]"
+                  className="shrink-0 cursor-pointer rounded-[200px] bg-[#FFFFFF] px-4 py-2 text-sm font-medium text-[#000000] transition-all duration-200 ease-in-out hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] active:scale-95 sm:px-[25px]"
                 >
                   Subscribe
                 </button>
               </div>
             </div>
           )}
-          <div>
+          <div className="text-center lg:text-left">
             <h1 className="text-[#000000] text-[18px] font-medium">
               Connect with us
             </h1>
-            <div className="flex gap-3 items-center mt-3">
+            <div className="mt-3 flex items-center justify-center gap-3 lg:justify-start">
               <Image src={facebook} alt="facebook" />
               <Image src={insta} alt="insta" />
               <Image src={twitter} alt="twitter" />
@@ -101,7 +96,7 @@ hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] active:scale-95 bg-[#FFFFFF] cursor-p
           </div>
         </div>
       </div>
-      <div className="flex justify-between h-[56px] items-center px-[44px]">
+      <div className="flex flex-col items-center gap-2 px-4 py-4 text-center text-sm sm:flex-row sm:justify-between sm:px-11 sm:text-left">
         <p className="text-[#00000080]">© 2025 Dealport. All rights reserved</p>
         <p className="text-[#00000080]">
           Trusted Seller Certifications by SSL Secure

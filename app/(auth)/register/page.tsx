@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, X } from "lucide-react";
 import { registerAuth } from "./hook/RegisterAuth";
 
 export default function RegisterPage() {
@@ -72,7 +72,17 @@ export default function RegisterPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-10">
-      <div className="w-full max-w-lg rounded-2xl bg-white p-8 shadow-sm">
+      <div className="w-full max-w-lg relative rounded-2xl bg-white p-8 shadow-sm">
+        <div className="mb-4 flex absolute top-4 right-4 justify-end">
+          <button
+            type="button"
+            onClick={() => router.push("/")}
+            className="cursor-pointer text-gray-400 transition-colors hover:text-[#023337]"
+            aria-label="Home page"
+          >
+            <X size={24} />
+          </button>
+        </div>
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold text-[#023337]">Create Account</h1>
           <p className="mt-2 text-gray-500">

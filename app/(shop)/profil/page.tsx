@@ -3,7 +3,7 @@ import avatar2 from "../../../assets/img/avatar2.png";
 import { useEffect, useState } from "react";
 import { useMe } from "@/app/auth/useMe";
 import { useLogout } from "./hook/useLogout";
-import { useRouter } from "next/navigation";
+
 import { LogOut } from "lucide-react";
 import {
   UserRound,
@@ -33,7 +33,11 @@ type ProfileForm = {
 };
 
 export default function ProfilePage() {
-  const router = useRouter();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   const logoutMutation = useLogout();
 
   const handleLogout = async () => {
@@ -212,7 +216,7 @@ export default function ProfilePage() {
 
   const labelClass = "text-sm font-semibold text-gray-700";
 
-  if (isLoading) {
+  if (!mounted || isLoading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
         <LoaderCircle className="animate-spin text-[#4EA674]" size={32} />

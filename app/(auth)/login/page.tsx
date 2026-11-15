@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { Eye, EyeOff, LockKeyhole, Mail } from "lucide-react";
+import { Eye, EyeOff, LockKeyhole, Mail, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -66,7 +66,18 @@ export default function LoginPage() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-[#f8faf9] px-4 py-10">
       <div className="w-full max-w-[450px]">
-        <div className="rounded-[28px] border border-gray-200 bg-white p-7 shadow-[0_10px_40px_rgba(0,0,0,0.06)] sm:p-10">
+        <div className="rounded-[28px] relative border border-gray-200 bg-white p-7 shadow-[0_10px_40px_rgba(0,0,0,0.06)] sm:p-10">
+          {/* Home page ga qaytish */}
+          <div className="mb-4 flex absolute top-4 right-4 justify-end">
+            <button
+              type="button"
+              onClick={() => router.push("/")}
+              className="cursor-pointer text-gray-400 transition-colors hover:text-[#023337]"
+              aria-label="Home page"
+            >
+              <X size={24} />
+            </button>
+          </div>
           {/* Logo / Title */}
           <div className="mb-8 text-center">
             <h1 className="text-[32px] font-bold tracking-[-0.5px] text-[#023337]">

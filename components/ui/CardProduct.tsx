@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { Product } from "@/app/(shop)/products/types/ProductsType";
 import { useRemoveWishlist } from "@/app/(shop)/wishlist/hook/useRemoveWishlist";
 import { useWishlist } from "@/app/(shop)/wishlist/hook/useWishlist";
@@ -8,12 +8,10 @@ import { Image, message } from "antd";
 import { Heart, ShoppingCartPlus, Star } from "lucide-react";
 
 import Link from "next/link";
-import {  useState } from "react";
+import { useState } from "react";
 type CardProductProps = {
   product: Product;
   mainImage: string;
-
- 
 };
 export default function CardProduct({ product, mainImage }: CardProductProps) {
   const [processingId, setProcessingId] = useState<string | null>(null);
@@ -83,7 +81,7 @@ export default function CardProduct({ product, mainImage }: CardProductProps) {
       <Link
         key={product.id}
         href={`/products/${product.id}`}
-        className="relative flex h-full flex-col rounded-[12px] bg-white p-3 shadow-[0px_1px_3px_0px_#00000033] transition-all duration-300 hover:scale-105"
+        className="relative flex h-full min-w-0 flex-col rounded-[12px] bg-white p-3 shadow-[0px_1px_3px_0px_#00000033] transition-all duration-300 sm:hover:scale-[1.02]"
       >
         {/* IMAGE */}
         <div className="relative flex h-[180px] w-full justify-center">
@@ -111,7 +109,6 @@ export default function CardProduct({ product, mainImage }: CardProductProps) {
             aria-label={
               liked ? "Wishlistdan olib tashlash" : "Wishlistga qo'shish"
             }
-           
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
@@ -169,7 +166,7 @@ export default function CardProduct({ product, mainImage }: CardProductProps) {
             )}
 
             <div className="flex items-center gap-2">
-              <p className="text-[22px] font-bold text-[#0c4bfa]">
+              <p className="text-base font-bold text-[#0c4bfa] sm:text-[22px]">
                 {formatPrice(product.price)} UZS
               </p>
 
@@ -183,18 +180,7 @@ export default function CardProduct({ product, mainImage }: CardProductProps) {
         </div>
 
         {/* BUTTONS */}
-        <div className="mt-auto flex items-center justify-between pt-5">
-          <button
-            type="button"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-            }}
-            className="cursor-pointer rounded-lg bg-blue-600 px-3 py-2 text-[16px] font-medium text-white transition-all duration-200 hover:-translate-y-[2px] hover:bg-blue-700 hover:shadow-[0_6px_20px_rgba(37,99,235,0.3)] active:scale-95"
-          >
-            Hozir xarid qilish
-          </button>
-
+        <div className="mt-auto flex items-center justify-center pt-5">
           <button
             type="button"
             onClick={(e) => {
@@ -206,9 +192,30 @@ export default function CardProduct({ product, mainImage }: CardProductProps) {
                 quantity: 1,
               });
             }}
-            className="cursor-pointer rounded-lg bg-[#18a8ad] px-5 py-2 text-white transition-all duration-200 hover:-translate-y-[2px] hover:shadow-[0_6px_20px_rgba(2,51,55,0.25)] active:scale-95"
+            className="w-full
+    group
+    flex items-center justify-center gap-2
+    cursor-pointer
+    rounded-xl
+    bg-[#023337]
+    px-3 py-2.5
+    text-[13px] font-semibold text-white
+    sm:px-6 sm:py-3 sm:text-[14px]
+    shadow-md shadow-[#023337]/15
+    transition-all duration-300 ease-in-out
+    hover:-translate-y-1
+    hover:bg-[#03484d]
+    hover:shadow-lg hover:shadow-[#023337]/25
+    active:translate-y-0
+    active:scale-95
+  "
           >
-            <ShoppingCartPlus />
+            <ShoppingCartPlus
+              size={19}
+              strokeWidth={2}
+              className="transition-transform duration-300 group-hover:scale-110"
+            />
+            <span>Add to cart</span>
           </button>
         </div>
       </Link>

@@ -36,3 +36,21 @@ export interface AddCartItemRequest {
   variantId?: string;
   quantity: number;
 }
+export interface AddressForm {
+  firstName: string;
+  lastName: string;
+  phone: string;
+  region: string;
+  city: string;
+  district: string;
+  mahalla: string;
+  street: string;
+  house: string;
+  apartment: string;
+  comment: string;
+}
+
+export interface OrderPayload {
+  address: AddressForm;
+  notes: string;
+}
