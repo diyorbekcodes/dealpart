@@ -61,19 +61,17 @@ export default function Deals() {
   };
 
   const handleAddToCart = (product: (typeof dealsProducts)[number]) => {
-    addToCart(
-      {
-        productId: product.id,
-        variantId: product.variants?.[0]?.id,
-        quantity: 1,
-      },
-      {
-        
-        onError: () => {
-          message.error("Savatga qo‘shishda xatolik yuz berdi");
-        },
-      },
-    );
+    if (!localStorage.getItem("crmAccessToken")) {
+      router.push("/login");
+      return;
+    }
+
+    addToCart({
+      productId: product.id,
+      variantId: product.variants?.[0]?.id,
+      quantity: 1,
+      product,
+    });
   };
 
   if (isLoading) {

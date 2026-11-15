@@ -88,10 +88,16 @@ export default function ProductsDetials({
   const handleAddToCart = () => {
     if (availableStock <= 0 || isAddingToCart) return;
 
+    if (!localStorage.getItem("crmAccessToken")) {
+      router.push("/login");
+      return;
+    }
+
     addToCart({
       productId: product.id,
       variantId: product.variants?.[0]?.id,
       quantity: 1,
+      product,
     });
   };
 

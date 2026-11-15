@@ -17,5 +17,6 @@ export const useCart = () => {
       return response.data;
     },
     enabled: ready && hasSession,
+    staleTime: 1000 * 60 * 5,
   });
 };

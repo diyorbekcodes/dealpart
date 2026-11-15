@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ArrowRight, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 
+import { useHasSession } from "@/hook/useHasSession";
 import { useCart } from "./hook/useCart";
 import { useUpdateCartItem } from "./hook/useUpdateCartItem";
 import { useRemoveItem } from "./hook/useRemoveItem";
@@ -17,6 +18,7 @@ import { useState } from "react";
 export default function Cart() {
  
   const [removingId, setRemovingId] = useState<string | null>(null);
+  const { ready, hasSession } = useHasSession();
   const { data, isLoading } = useCart();
   const cartData = data?.data;
   const cartItems = cartData?.items ?? [];
@@ -41,7 +43,7 @@ export default function Cart() {
       },
     );
   };
-  if (isLoading) {
+  if (!ready || (hasSession && isLoading)) {
     return (
       <main className="min-h-screen bg-[#f8faf9] px-4 py-10 sm:px-6 lg:px-10">
         <div className="mx-auto max-w-[1200px]">

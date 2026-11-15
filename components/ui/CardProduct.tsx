@@ -170,10 +170,16 @@ function CardProduct({ product, mainImage }: CardProductProps) {
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
+              if (!localStorage.getItem("crmAccessToken")) {
+                router.push("/login");
+                return;
+              }
+
               addToCart({
                 productId: product.id,
                 variantId: product.variants?.[0]?.id,
                 quantity: 1,
+                product,
               });
             }}
             className="w-full

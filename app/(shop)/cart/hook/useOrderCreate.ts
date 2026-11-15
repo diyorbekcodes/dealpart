@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/services/api";
 import type { OrderPayload } from "../types/addCartType";
+import { cartKey, emptyCart } from "./cartCache";
 
 export const useOrderCreate = () => {
   const queryClient = useQueryClient();
@@ -20,8 +21,9 @@ export const useOrderCreate = () => {
     },
 
     onSuccess: () => {
+      queryClient.setQueryData(cartKey, emptyCart(undefined));
       queryClient.invalidateQueries({ queryKey: ["orders"] });
-      queryClient.invalidateQueries({ queryKey: ["cart"] });
+      queryClient.invalidateQueries({ queryKey: cartKey });
     },
   });
 };

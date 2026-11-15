@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Heart,
   ShoppingBag,
@@ -52,6 +53,7 @@ function mediaUrl(url?: string) {
 }
 
 export default function Wishlist() {
+  const router = useRouter();
   const [addingId, setAddingId] = useState<string | null>(null);
   const { ready, hasSession } = useHasSession();
   const { data, isLoading, isError } = useWishlist();
@@ -299,12 +301,28 @@ export default function Wishlist() {
                         disabled={addingId === product.id}
                         aria-label="Add to cart"
                         onClick={() => {
+                          if (!localStorage.getItem("crmAccessToken")) {
+                            router.push("/login");
+                            return;
+                          }
+
                           setAddingId(product.id);
                           addToCart(
                             {
                               productId: product.id,
                               variantId: product.variants?.[0]?.id,
                               quantity: 1,
+                              product: {
+                                id: product.id,
+                                name: product.name,
+                                price: product.price,
+                                image: mainImage,
+                                sku: product.sku,
+                                brand:
+                                  typeof product.brand === "string"
+                                    ? product.brand
+                                    : undefined,
+                              },
                             },
                             {
                               onSettled: () => setAddingId(null),
