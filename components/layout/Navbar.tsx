@@ -5,7 +5,7 @@ import avatar2 from "../../assets/img/avatar2.png";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import {
   ChevronDown,
   ChevronRight,
@@ -136,7 +136,9 @@ export default function Navbar() {
           <div className="flex min-w-0 shrink-0 items-center gap-2 sm:gap-3">
             {/* SEARCH - LIKE TUGMASINING CHAP TOMONIDA */}
             <div className="hidden w-[220px] lg:block xl:w-[320px]">
-              <SearchProducts />
+              <Suspense fallback={null}>
+                <SearchProducts />
+              </Suspense>
             </div>
 
             {/* WISHLIST */}
@@ -325,7 +327,9 @@ export default function Navbar() {
 
       {/* MOBILE SEARCH */}
       <div className="relative z-40 border-b border-gray-100 bg-white px-4 py-3 md:hidden">
-        <SearchProducts />
+        <Suspense fallback={null}>
+          <SearchProducts />
+        </Suspense>
       </div>
 
       {/* MOBILE MENU */}
