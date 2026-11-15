@@ -1,6 +1,6 @@
 import Products from "./Products";
 
-export const revalidate = 60;
+export const revalidate = 300;
 
 interface Props {
   searchParams: Promise<{
@@ -16,7 +16,7 @@ export async function getProducts() {
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/products`,
     {
-      next: { revalidate: 60 },
+      next: { revalidate: 300 },
     }
   );
 

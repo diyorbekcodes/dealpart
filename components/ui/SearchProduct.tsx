@@ -5,6 +5,28 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 import { useEffect, useRef, useState } from "react";
 
+let catalogPromise: Promise<SearchProduct[]> | null = null;
+
+function loadSearchCatalog() {
+  if (!catalogPromise) {
+    catalogPromise = fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`)
+      .then(async (response) => {
+        if (!response.ok) {
+          throw new Error("Mahsulotlarni yuklashda xatolik");
+        }
+
+        const result = await response.json();
+        return (result.data ?? []) as SearchProduct[];
+      })
+      .catch((error) => {
+        catalogPromise = null;
+        throw error;
+      });
+  }
+
+  return catalogPromise;
+}
+
 interface SearchProduct {
   id: string;
   name: string;
@@ -34,30 +56,28 @@ export default function SearchProducts() {
   const [search, setSearch] = useState(searchParams.get("search") || "");
   const [products, setProducts] = useState<SearchProduct[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [catalogReady, setCatalogReady] = useState(false);
 
-  // Mahsulotlarni API dan olish
-  // Mahsulotlarni API dan olish
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/products`,
-        );
+    if (!isExpanded) return;
 
-        if (!response.ok) {
-          throw new Error("Mahsulotlarni yuklashda xatolik");
-        }
+    let cancelled = false;
 
-        const result = await response.json();
-
-        setProducts(result.data ?? []);
-      } catch (error) {
+    loadSearchCatalog()
+      .then((items) => {
+        if (!cancelled) setProducts(items);
+      })
+      .catch((error) => {
         console.error("Search products error:", error);
-      }
-    };
+      })
+      .finally(() => {
+        if (!cancelled) setCatalogReady(true);
+      });
 
-    fetchProducts();
-  }, []);
+    return () => {
+      cancelled = true;
+    };
+  }, [isExpanded]);
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
@@ -236,7 +256,11 @@ export default function SearchProducts() {
           />
 
           <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-[450px] overflow-y-auto rounded-xl border border-gray-200 bg-white shadow-xl">
-            {!hasResults ? (
+            {!catalogReady ? (
+              <p className="px-4 py-6 text-center text-sm text-gray-500">
+                Qidirilmoqda...
+              </p>
+            ) : !hasResults ? (
               <p className="px-4 py-6 text-center text-sm text-gray-500">
                 Hech qanday natija topilmadi
               </p>

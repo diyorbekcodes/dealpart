@@ -163,6 +163,8 @@ export default function MainContext({ product }: { product: Product[] }) {
                     <img
                       src={item.logo}
                       alt={item.name}
+                      loading="lazy"
+                      decoding="async"
                       className="h-[70px] w-full object-contain"
                     />
                   </Link>

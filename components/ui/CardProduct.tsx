@@ -4,16 +4,21 @@ import { useRemoveWishlist } from "@/app/(shop)/wishlist/hook/useRemoveWishlist"
 import { useWishlist } from "@/app/(shop)/wishlist/hook/useWishlist";
 import useWishlistAdd from "@/app/(shop)/wishlist/hook/useWishlistAdd";
 import { useAddToCart } from "@/hook/AddCart";
-import { Image, message } from "antd";
+import { message } from "antd";
 import { Heart, ShoppingCartPlus, Star } from "lucide-react";
 
 import Link from "next/link";
-import { useState } from "react";
+import { memo, useState } from "react";
 type CardProductProps = {
   product: Product;
   mainImage: string;
 };
-export default function CardProduct({ product, mainImage }: CardProductProps) {
+function productImageSrc(url: string) {
+  if (url.startsWith("http")) return url;
+  return `https://oline-shop-backend.onrender.com${url}`;
+}
+
+function CardProduct({ product, mainImage }: CardProductProps) {
   const [processingId, setProcessingId] = useState<string | null>(null);
   const { data: wishlistData } = useWishlist();
   const wishlistItems = wishlistData?.data?.items ?? [];
@@ -78,23 +83,21 @@ export default function CardProduct({ product, mainImage }: CardProductProps) {
   }
   return (
     <div>
-      <Link
+        <Link
         key={product.id}
         href={`/products/${product.id}`}
+        prefetch={false}
         className="relative flex h-full min-w-0 flex-col rounded-[12px] bg-white p-3 shadow-[0px_1px_3px_0px_#00000033] transition-all duration-300 sm:hover:scale-[1.02]"
       >
         {/* IMAGE */}
         <div className="relative flex h-[180px] w-full justify-center">
           {mainImage ? (
-            <Image
-              src={
-                mainImage.startsWith("http")
-                  ? mainImage
-                  : `https://oline-shop-backend.onrender.com${mainImage}`
-              }
+            <img
+              src={productImageSrc(mainImage)}
               alt={product.images?.[0]?.alt || product.name}
-              preview={false}
-              className="!h-[180px] !w-full !bg-white !object-contain"
+              loading="lazy"
+              decoding="async"
+              className="h-[180px] w-full bg-white object-contain"
             />
           ) : (
             <div className="flex h-full items-center justify-center text-gray-400">
@@ -222,3 +225,5 @@ export default function CardProduct({ product, mainImage }: CardProductProps) {
     </div>
   );
 }
+
+export default memo(CardProduct);

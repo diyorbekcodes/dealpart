@@ -9,12 +9,21 @@ type ProductDetailsResponse = {
   data: Product;
 };
 
-export function useProductDetails(productId?: string) {
-  const [product, setProduct] = useState<Product | null>(null);
-  const [loading, setLoading] = useState(true);
+export function useProductDetails(
+  productId?: string,
+  initialProduct?: Product | null,
+) {
+  const [product, setProduct] = useState<Product | null>(initialProduct ?? null);
+  const [loading, setLoading] = useState(!initialProduct);
   const [error, setError] = useState("");
 
   useEffect(() => {
+    if (initialProduct && initialProduct.id === productId) {
+      setProduct(initialProduct);
+      setLoading(false);
+      return;
+    }
+
     if (!productId) {
       setProduct(null);
       setError("Mahsulot ID si topilmadi");
@@ -73,7 +82,7 @@ export function useProductDetails(productId?: string) {
     getProduct();
 
     return () => controller.abort();
-  }, [productId]);
+  }, [productId, initialProduct]);
 
   return {
     product,

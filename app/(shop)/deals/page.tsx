@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Image, Spin, message } from "antd";
+import { Spin, message } from "antd";
 import { Heart, ShoppingCartPlus, Star, Tag, Clock } from "lucide-react";
 import { useProducts } from "../products/hook/Products";
 import { useAddToCart } from "@/hook/AddCart";
@@ -202,15 +202,16 @@ export default function Deals() {
                 {/* Image */}
                 <div className="relative flex h-[210px] items-center justify-center overflow-hidden rounded-xl bg-gray-50">
                   {mainImage ? (
-                    <Image
+                    <img
                       src={
                         mainImage.startsWith("http")
                           ? mainImage
                           : `https://oline-shop-backend.onrender.com${mainImage}`
                       }
                       alt={product.images?.[0]?.alt || product.name}
-                      preview={false}
-                      className="!h-[210px] !w-full !object-contain !p-3 transition-transform duration-300 group-hover:scale-105"
+                      loading="lazy"
+                      decoding="async"
+                      className="h-[210px] w-full object-contain p-3 transition-transform duration-300 group-hover:scale-105"
                     />
                   ) : (
                     <div className="text-sm text-gray-400">

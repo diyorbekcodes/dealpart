@@ -1,25 +1,15 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Lato } from "next/font/google";
+import { Lato } from "next/font/google";
 
 import "./globals.css";
 import QueryProvider from "@/providers/QueryProvider";
-import { Check } from "lucide-react";
 import { CheckoutProvider } from "@/context/CheckoutContext";
-import { CarouselProvider } from "@/context/CarouselContext";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
 
 const lato = Lato({
   subsets: ["latin"],
-  weight: ["400", "700", "900"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  weight: ["400", "700"],
+  display: "swap",
+  variable: "--font-lato",
 });
 
 export const metadata: Metadata = {
@@ -33,10 +23,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
+    <html lang="en" className={`${lato.variable} h-full antialiased`}>
+      <head>
+        <link
+          rel="preconnect"
+          href="https://oline-shop-backend.onrender.com"
+        />
+        <link
+          rel="dns-prefetch"
+          href="https://oline-shop-backend.onrender.com"
+        />
+      </head>
       <body
         className={`${lato.className} min-h-screen bg-white text-black dark:bg-black dark:text-white`}
       >

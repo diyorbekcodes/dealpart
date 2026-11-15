@@ -78,7 +78,7 @@ export default function HeaderClient({
                 transform: `translateX(-${currentSlide * 100}%)`,
               }}
             >
-              {bannerData.map((item) => (
+              {bannerData.map((item, index) => (
                 <div
                   key={item.id}
                   className="h-[190px] min-w-full shrink-0 overflow-hidden sm:h-[280px] md:h-[360px] lg:h-[420px]"
@@ -86,6 +86,9 @@ export default function HeaderClient({
                   <img
                     src={item.image}
                     alt={item.title}
+                    loading={index === 0 ? "eager" : "lazy"}
+                    fetchPriority={index === 0 ? "high" : "low"}
+                    decoding="async"
                     className="block h-full w-full object-cover"
                   />
                 </div>

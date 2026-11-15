@@ -3,9 +3,12 @@
 import { useQuery } from "@tanstack/react-query";
 
 import api from "@/services/api";
+import { useHasSession } from "@/hook/useHasSession";
 import { WishlistResponse } from "../types/WishlistType";
 
 export const useWishlist = () => {
+  const hasSession = useHasSession();
+
   return useQuery<WishlistResponse>({
     queryKey: ["wishlist"],
     queryFn: async () => {
@@ -13,5 +16,6 @@ export const useWishlist = () => {
 
       return response.data;
     },
+    enabled: hasSession,
   });
 };

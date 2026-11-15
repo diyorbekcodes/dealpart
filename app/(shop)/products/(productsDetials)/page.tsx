@@ -14,6 +14,7 @@ import {
 
 import { useAddToCart } from "@/hook/AddCart";
 import { useProductDetails } from "../hook/useProductDetails";
+import type { Product } from "../types/ProductsType";
 import { useWishlist } from "../../wishlist/hook/useWishlist";
 import useWishlistAdd from "../../wishlist/hook/useWishlistAdd";
 import { useRemoveWishlist } from "../../wishlist/hook/useRemoveWishlist";
@@ -21,11 +22,18 @@ import { message } from "antd";
 
 type ProductsProps = {
   productId?: string;
+  initialProduct?: Product | null;
 };
 
-export default function ProductsDetials({ productId }: ProductsProps) {
+export default function ProductsDetials({
+  productId,
+  initialProduct = null,
+}: ProductsProps) {
 
-  const { product, loading, error } = useProductDetails(productId);
+  const { product, loading, error } = useProductDetails(
+    productId,
+    initialProduct,
+  );
   
 
   const { mutate: addToCart, isPending: isAddingToCart } = useAddToCart();

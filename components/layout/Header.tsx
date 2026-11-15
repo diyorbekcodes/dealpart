@@ -1,6 +1,6 @@
 import HeaderClient from "./HeaderClient";
 
-export const revalidate = 60;
+export const revalidate = 300;
 
 interface Category {
   id: string;
@@ -19,7 +19,7 @@ interface Banner {
 async function getCategories(): Promise<Category[]> {
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/categories`,
-    { next: { revalidate: 60 } }
+    { next: { revalidate: 300 } }
   );
 
   if (!response.ok) throw new Error("Kategoriyalarni olishda xatolik");
@@ -31,7 +31,7 @@ async function getCategories(): Promise<Category[]> {
 async function getBanners(): Promise<Banner[]> {
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/banners`,
-    { next: { revalidate: 60 } }
+    { next: { revalidate: 300 } }
   );
 
   if (!response.ok) throw new Error("Bannerlarni olishda xatolik");
