@@ -7,7 +7,9 @@ import { useAddToCart } from "@/hook/AddCart";
 import { message } from "antd";
 import { Heart, ShoppingCartPlus, Star } from "lucide-react";
 
+import { isWishlisted } from "@/app/(shop)/wishlist/hook/wishlistCache";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { memo, useState } from "react";
 type CardProductProps = {
   product: Product;
@@ -19,47 +21,26 @@ function productImageSrc(url: string) {
 }
 
 function CardProduct({ product, mainImage }: CardProductProps) {
+  const router = useRouter();
   const [processingId, setProcessingId] = useState<string | null>(null);
   const { data: wishlistData } = useWishlist();
-  const wishlistItems = wishlistData?.data?.items ?? [];
+  const liked = isWishlisted(wishlistData?.data?.items, product.id);
 
   const { mutate: addWishlist } = useWishlistAdd();
-  const isLiked = (productId: string) => {
-    if (productId in optimisticLikes) {
-      return optimisticLikes[productId];
-    }
-
-    return wishlistItems.some(
-      (item: { productId?: string; product?: { id?: string } }) =>
-        item.productId === productId || item.product?.id === productId,
-    );
-  };
-  const [optimisticLikes, setOptimisticLikes] = useState<
-    Record<string, boolean>
-  >({});
-  const liked = isLiked(product.id);
   const { mutate: removeWishlist } = useRemoveWishlist();
   const { mutate: addToCart } = useAddToCart();
   const handleWishlist = (productId: string) => {
     if (processingId !== null) return;
 
-    const wasLiked = isLiked(productId);
-
-    // Yurakni darhol qizil qilish
-    setOptimisticLikes((prev) => ({
-      ...prev,
-      [productId]: !wasLiked,
-    }));
+    if (!localStorage.getItem("crmAccessToken")) {
+      router.push("/login");
+      return;
+    }
 
     setProcessingId(productId);
 
     const callbacks = {
       onError: () => {
-        setOptimisticLikes((prev) => ({
-          ...prev,
-          [productId]: wasLiked,
-        }));
-
         message.error("Amalni bajarishda xatolik yuz berdi");
       },
       onSettled: () => {
@@ -67,10 +48,10 @@ function CardProduct({ product, mainImage }: CardProductProps) {
       },
     };
 
-    if (wasLiked) {
+    if (liked) {
       removeWishlist(productId, callbacks);
     } else {
-      addWishlist({ id: productId }, callbacks);
+      addWishlist({ id: productId, product }, callbacks);
     }
   };
   function formatPrice(price: number) {

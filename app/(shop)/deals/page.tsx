@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { isWishlisted } from "../wishlist/hook/wishlistCache";
 import { Spin, message } from "antd";
 import { Heart, ShoppingCartPlus, Star, Tag, Clock } from "lucide-react";
 import { useProducts } from "../products/hook/Products";
@@ -10,6 +12,7 @@ import { useWishlist } from "../wishlist/hook/useWishlist";
 import useWishlistAdd from "../wishlist/hook/useWishlistAdd";
 
 export default function Deals() {
+  const router = useRouter();
   const { data, isLoading, isError } = useProducts();
 
   const { mutate: addToCart } = useAddToCart();
@@ -18,22 +21,6 @@ export default function Deals() {
   const { mutate: removeWishlist } = useRemoveWishlist();
 
   const [processingId, setProcessingId] = useState<string | null>(null);
-  const [optimisticLikes, setOptimisticLikes] = useState<
-    Record<string, boolean>
-  >({});
-
-  const wishlistItems = wishlistData?.data?.items ?? [];
-
-  const isLiked = (productId: string) => {
-    if (productId in optimisticLikes) {
-      return optimisticLikes[productId];
-    }
-
-    return wishlistItems.some(
-      (item: { productId?: string; product?: { id?: string } }) =>
-        item.productId === productId || item.product?.id === productId,
-    );
-  };
 
   // Faqat chegirmasi bor mahsulotlar
   const dealsProducts = [...(data?.data ?? [])]
@@ -46,26 +33,19 @@ export default function Deals() {
       (a, b) => Number(b.discountPercent ?? 0) - Number(a.discountPercent ?? 0),
     );
 
-  const handleWishlist = (productId: string) => {
+  const handleWishlist = (product: (typeof dealsProducts)[number]) => {
     if (processingId !== null) return;
 
-    const wasLiked = isLiked(productId);
+    if (!localStorage.getItem("crmAccessToken")) {
+      router.push("/login");
+      return;
+    }
 
-    // Yurakni API javobini kutmasdan darhol yangilash
-    setOptimisticLikes((prev) => ({
-      ...prev,
-      [productId]: !wasLiked,
-    }));
-
-    setProcessingId(productId);
+    const wasLiked = isWishlisted(wishlistData?.data?.items, product.id);
+    setProcessingId(product.id);
 
     const callbacks = {
       onError: () => {
-        setOptimisticLikes((prev) => ({
-          ...prev,
-          [productId]: wasLiked,
-        }));
-
         message.error("Wishlistni yangilashda xatolik yuz berdi");
       },
       onSettled: () => {
@@ -74,9 +54,9 @@ export default function Deals() {
     };
 
     if (wasLiked) {
-      removeWishlist(productId, callbacks);
+      removeWishlist(product.id, callbacks);
     } else {
-      addWishlist({ id: productId }, callbacks);
+      addWishlist({ id: product.id, product }, callbacks);
     }
   };
 
@@ -185,7 +165,7 @@ export default function Deals() {
               product.images?.find((image) => image.isMain)?.url ||
               product.images?.[0]?.url;
 
-            const liked = isLiked(product.id);
+            const liked = isWishlisted(wishlistData?.data?.items, product.id);
             const discountPercent =
               Number(product.discountPercent) ||
               Math.round(
@@ -233,7 +213,7 @@ export default function Deals() {
                         : "Wishlistga qo‘shish"
                     }
                     disabled={processingId === product.id}
-                    onClick={() => handleWishlist(product.id)}
+                    onClick={() => handleWishlist(product)}
                     className={`absolute right-2 top-2 flex h-10 w-10 items-center justify-center rounded-full shadow-sm transition-transform duration-200 hover:scale-110 active:scale-90 ${
                       liked ? "bg-pink-100" : "bg-white hover:bg-pink-50"
                     }`}

@@ -15,6 +15,8 @@ import {
 import { useAddToCart } from "@/hook/AddCart";
 import { useProductDetails } from "../hook/useProductDetails";
 import type { Product } from "../types/ProductsType";
+import { useRouter } from "next/navigation";
+import { isWishlisted } from "../../wishlist/hook/wishlistCache";
 import { useWishlist } from "../../wishlist/hook/useWishlist";
 import useWishlistAdd from "../../wishlist/hook/useWishlistAdd";
 import { useRemoveWishlist } from "../../wishlist/hook/useRemoveWishlist";
@@ -40,27 +42,13 @@ export default function ProductsDetials({
 
   const [selectedImage, setSelectedImage] = useState("");
 
+  const router = useRouter();
   const { data: wishlistData } = useWishlist();
 
   const [processingId, setProcessingId] = useState<string | null>(null);
   const { mutate: addWishlist } = useWishlistAdd();
 
   const { mutate: removeWishlist } = useRemoveWishlist();
-  const wishlistItems = wishlistData?.data?.items ?? [];
-  const [optimisticLikes, setOptimisticLikes] = useState<
-    Record<string, boolean>
-  >({});
-
-  const isLiked = (productId: string) => {
-    if (productId in optimisticLikes) {
-      return optimisticLikes[productId];
-    }
-
-    return wishlistItems.some(
-      (item: { productId?: string; product?: { id?: string } }) =>
-        item.productId === productId || item.product?.id === productId,
-    );
-  };
   useEffect(() => {
     if (!product) {
       setSelectedImage("");
@@ -107,26 +95,20 @@ export default function ProductsDetials({
     });
   };
 
+  const liked = isWishlisted(wishlistData?.data?.items, product.id);
+
   const handleWishlist = (productId: string) => {
     if (processingId !== null) return;
 
-    const wasLiked = isLiked(productId);
-
-    // Yurakni darhol qizil qilish
-    setOptimisticLikes((prev) => ({
-      ...prev,
-      [productId]: !wasLiked,
-    }));
+    if (!localStorage.getItem("crmAccessToken")) {
+      router.push("/login");
+      return;
+    }
 
     setProcessingId(productId);
 
     const callbacks = {
       onError: () => {
-        setOptimisticLikes((prev) => ({
-          ...prev,
-          [productId]: wasLiked,
-        }));
-
         message.error("Amalni bajarishda xatolik yuz berdi");
       },
       onSettled: () => {
@@ -134,13 +116,12 @@ export default function ProductsDetials({
       },
     };
 
-    if (wasLiked) {
+    if (liked) {
       removeWishlist(productId, callbacks);
     } else {
-      addWishlist({ id: productId }, callbacks);
+      addWishlist({ id: productId, product }, callbacks);
     }
   };
-  const liked = isLiked(product.id);
   const isProcessing = processingId === product.id;
   return (
     <div className="mx-auto w-full max-w-[1440px] px-4 py-6 md:px-8 lg:px-12">

@@ -14,8 +14,8 @@ import { Spin } from "antd";
 import { useWishlist } from "./hook/useWishlist";
 import { useRemoveWishlist } from "./hook/useRemoveWishlist";
 import { useAddToCart } from "../../../hook/AddCart";
+import { useHasSession } from "@/hook/useHasSession";
 import { useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
 interface WishlistProduct {
   id: string;
   name: string;
@@ -45,12 +45,18 @@ interface WishlistItem {
   product: WishlistProduct;
 }
 
+function mediaUrl(url?: string) {
+  if (!url) return "";
+  if (url.startsWith("http")) return url;
+  return `https://oline-shop-backend.onrender.com${url}`;
+}
+
 export default function Wishlist() {
-  const queryClient = useQueryClient();
-  const [removingIds, setRemovingIds] = useState<string[]>([]);
+  const [addingId, setAddingId] = useState<string | null>(null);
+  const { ready, hasSession } = useHasSession();
   const { data, isLoading, isError } = useWishlist();
-  const { mutate: removeWishlist, isPending: isRemoving } = useRemoveWishlist();
-  const { mutate: addToCart, isPending: isAddingToCart } = useAddToCart();
+  const { mutate: removeWishlist } = useRemoveWishlist();
+  const { mutate: addToCart } = useAddToCart();
 
   const wishlist = data?.data;
   const items: WishlistItem[] = wishlist?.items ?? [];
@@ -58,7 +64,7 @@ export default function Wishlist() {
   const formatPrice = (price: number) =>
     new Intl.NumberFormat("uz-UZ").format(price);
 
-  if (isLoading) {
+  if (!ready || (hasSession && isLoading)) {
     return (
       <main className="flex min-h-[60vh] items-center justify-center">
         <div className="flex flex-col items-center gap-4">
@@ -179,8 +185,10 @@ export default function Wishlist() {
                   <div className="relative flex h-[180px] w-full items-center justify-center">
                     {mainImage ? (
                       <img
-                        src={mainImage}
+                        src={mediaUrl(mainImage)}
                         alt={product.name}
+                        loading="lazy"
+                        decoding="async"
                         className="h-[180px] w-full rounded-lg bg-white object-contain"
                       />
                     ) : (
@@ -197,37 +205,12 @@ export default function Wishlist() {
                       type="button"
                       aria-label="Remove from wishlist"
                       title="Remove from wishlist"
-                      disabled={removingIds.includes(product.id)}
-                      onClick={() => {
-                        setRemovingIds((prev) => [...prev, product.id]);
-
-                        removeWishlist(product.id, {
-                          onSuccess: () => {
-                            queryClient.invalidateQueries({
-                              queryKey: ["wishlist"],
-                            });
-                          },
-                          onError: () => {
-                            setRemovingIds((prev) =>
-                              prev.filter((id) => id !== product.id),
-                            );
-                          },
-                          onSettled: () => {
-                            setRemovingIds((prev) =>
-                              prev.filter((id) => id !== product.id),
-                            );
-                          },
-                        });
-                      }}
+                      onClick={() => removeWishlist(product.id)}
                       className="absolute right-1 top-1 flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-sm transition hover:scale-110 active:scale-90 disabled:opacity-50"
                     >
                       <Heart
                         size={18}
-                        fill={
-                          removingIds.includes(product.id)
-                            ? "transparent"
-                            : "#ef4444"
-                        }
+                        fill="#ef4444"
                         color="#ef4444"
                         className="transition-all duration-150"
                       />
@@ -313,15 +296,21 @@ export default function Wishlist() {
 
                       <button
                         type="button"
-                        disabled={isAddingToCart}
+                        disabled={addingId === product.id}
                         aria-label="Add to cart"
-                        onClick={() =>
-                          addToCart({
-                            productId: product.id,
-                            variantId: product.variants?.[0]?.id,
-                            quantity: 1,
-                          })
-                        }
+                        onClick={() => {
+                          setAddingId(product.id);
+                          addToCart(
+                            {
+                              productId: product.id,
+                              variantId: product.variants?.[0]?.id,
+                              quantity: 1,
+                            },
+                            {
+                              onSettled: () => setAddingId(null),
+                            },
+                          );
+                        }}
                         className="flex h-10 w-11 shrink-0 items-center justify-center rounded-lg bg-[#18a8ad] text-white transition hover:bg-[#12969b] active:scale-95 disabled:opacity-50"
                       >
                         <ShoppingCartPlus size={20} />

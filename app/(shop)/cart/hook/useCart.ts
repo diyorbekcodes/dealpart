@@ -7,7 +7,7 @@ import { useHasSession } from "@/hook/useHasSession";
 import { CartResponse } from "../types/addCartType";
 
 export const useCart = () => {
-  const hasSession = useHasSession();
+  const { ready, hasSession } = useHasSession();
 
   return useQuery<CartResponse>({
     queryKey: ["cart"],
@@ -16,6 +16,6 @@ export const useCart = () => {
 
       return response.data;
     },
-    enabled: hasSession,
+    enabled: ready && hasSession,
   });
 };
