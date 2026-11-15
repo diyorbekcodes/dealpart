@@ -1,28 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { isWishlisted } from "../wishlist/hook/wishlistCache";
-import { Spin, message } from "antd";
-import { Heart, ShoppingCartPlus, Star, Tag, Clock } from "lucide-react";
+import { Spin } from "antd";
+import { Tag, Clock } from "lucide-react";
 import { useProducts } from "../products/hook/Products";
-import { useAddToCart } from "@/hook/AddCart";
-import { useRemoveWishlist } from "../wishlist/hook/useRemoveWishlist";
-import { useWishlist } from "../wishlist/hook/useWishlist";
-import useWishlistAdd from "../wishlist/hook/useWishlistAdd";
+import CardProduct from "@/components/ui/CardProduct";
 
 export default function Deals() {
-  const router = useRouter();
   const { data, isLoading, isError } = useProducts();
 
-  const { mutate: addToCart } = useAddToCart();
-  const { data: wishlistData } = useWishlist();
-  const { mutate: addWishlist } = useWishlistAdd();
-  const { mutate: removeWishlist } = useRemoveWishlist();
-
-  const [processingId, setProcessingId] = useState<string | null>(null);
-
-  // Faqat chegirmasi bor mahsulotlar
   const dealsProducts = [...(data?.data ?? [])]
     .filter(
       (product) =>
@@ -32,47 +17,6 @@ export default function Deals() {
     .sort(
       (a, b) => Number(b.discountPercent ?? 0) - Number(a.discountPercent ?? 0),
     );
-
-  const handleWishlist = (product: (typeof dealsProducts)[number]) => {
-    if (processingId !== null) return;
-
-    if (!localStorage.getItem("crmAccessToken")) {
-      router.push("/login");
-      return;
-    }
-
-    const wasLiked = isWishlisted(wishlistData?.data?.items, product.id);
-    setProcessingId(product.id);
-
-    const callbacks = {
-      onError: () => {
-        message.error("Wishlistni yangilashda xatolik yuz berdi");
-      },
-      onSettled: () => {
-        setProcessingId(null);
-      },
-    };
-
-    if (wasLiked) {
-      removeWishlist(product.id, callbacks);
-    } else {
-      addWishlist({ id: product.id, product }, callbacks);
-    }
-  };
-
-  const handleAddToCart = (product: (typeof dealsProducts)[number]) => {
-    if (!localStorage.getItem("crmAccessToken")) {
-      router.push("/login");
-      return;
-    }
-
-    addToCart({
-      productId: product.id,
-      variantId: product.variants?.[0]?.id,
-      quantity: 1,
-      product,
-    });
-  };
 
   if (isLoading) {
     return (
@@ -157,133 +101,18 @@ export default function Deals() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4 xl:grid-cols-5">
           {dealsProducts.map((product) => {
             const mainImage =
               product.images?.find((image) => image.isMain)?.url ||
               product.images?.[0]?.url;
 
-            const liked = isWishlisted(wishlistData?.data?.items, product.id);
-            const discountPercent =
-              Number(product.discountPercent) ||
-              Math.round(
-                ((Number(product.oldPrice) - Number(product.price)) /
-                  Number(product.oldPrice)) *
-                  100,
-              );
-
             return (
-              <div
+              <CardProduct
                 key={product.id}
-                className="group relative flex min-w-0 flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white p-3 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
-              >
-                {/* Image */}
-                <div className="relative flex h-[210px] items-center justify-center overflow-hidden rounded-xl bg-gray-50">
-                  {mainImage ? (
-                    <img
-                      src={
-                        mainImage.startsWith("http")
-                          ? mainImage
-                          : `https://oline-shop-backend.onrender.com${mainImage}`
-                      }
-                      alt={product.images?.[0]?.alt || product.name}
-                      loading="lazy"
-                      decoding="async"
-                      className="h-[210px] w-full object-contain p-3 transition-transform duration-300 group-hover:scale-105"
-                    />
-                  ) : (
-                    <div className="text-sm text-gray-400">
-                      Rasm mavjud emas
-                    </div>
-                  )}
-
-                  {/* Discount badge */}
-                  <div className="absolute left-2 top-2 rounded-lg bg-red-500 px-2.5 py-1.5 text-sm font-extrabold text-white shadow-sm">
-                    -{discountPercent}%
-                  </div>
-
-                  {/* Wishlist */}
-                  <button
-                    type="button"
-                    aria-label={
-                      liked
-                        ? "Wishlistdan olib tashlash"
-                        : "Wishlistga qo‘shish"
-                    }
-                    disabled={processingId === product.id}
-                    onClick={() => handleWishlist(product)}
-                    className={`absolute right-2 top-2 flex h-10 w-10 items-center justify-center rounded-full shadow-sm transition-transform duration-200 hover:scale-110 active:scale-90 ${
-                      liked ? "bg-pink-100" : "bg-white hover:bg-pink-50"
-                    }`}
-                  >
-                    <Heart
-                      size={20}
-                      color={liked ? "#ef4444" : "#374151"}
-                      fill={liked ? "#ef4444" : "transparent"}
-                    />
-                  </button>
-                </div>
-
-                {/* Product info */}
-                <div className="flex flex-1 flex-col px-1 pt-4">
-                  <p className="line-clamp-1 text-lg font-bold text-gray-900">
-                    {product.name}
-                  </p>
-
-                  <p className="mt-1 line-clamp-2 min-h-[40px] text-sm leading-5 text-gray-500">
-                    {product.shortDescription || product.description}
-                  </p>
-
-                  {/* Rating */}
-                  <div className="mt-3 flex items-center gap-2">
-                    <div className="flex items-center gap-0.5">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <Star
-                          key={star}
-                          size={14}
-                          fill={
-                            star <=
-                            Math.round(Number(product.averageRating ?? 0))
-                              ? "#FACC15"
-                              : "transparent"
-                          }
-                          color="#FACC15"
-                        />
-                      ))}
-                    </div>
-
-                    <span className="text-xs text-gray-500">
-                      ({product.reviewsCount ?? 0})
-                    </span>
-                  </div>
-
-                  {/* Price */}
-                  <div className="mt-4">
-                    <p className="text-sm text-gray-400 line-through">
-                      {Number(product.oldPrice).toLocaleString("uz-UZ")} UZS
-                    </p>
-
-                    <div className="mt-1 flex flex-wrap items-center gap-2">
-                      <p className="text-xl font-extrabold text-[#023337]">
-                        {Number(product.price).toLocaleString("uz-UZ")} UZS
-                      </p>
-                      <span className="rounded-md bg-red-50 px-2 py-1 text-xs font-bold text-red-500">
-                        −{discountPercent}%
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Add to cart */}
-                  <button
-                    type="button"
-                    onClick={() => handleAddToCart(product)}
-                    className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-[#18a8ad] px-4 py-3 text-sm font-semibold text-white transition-all duration-200 hover:bg-[#128d92] active:scale-[0.98]"
-                  >
-                    <ShoppingCartPlus size={19} />
-                    Savatga qo‘shish
-                  </button>
-                </div>
-              </div>
+                product={product}
+                mainImage={mainImage}
+              />
             );
           })}
         </div>

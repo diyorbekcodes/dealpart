@@ -76,7 +76,7 @@ export default function MainContext({ product }: { product: Product[] }) {
           </Link>
         </div>
 
-        <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4 xl:grid-cols-5">
           {products
             .slice(-8)
             .reverse()
@@ -115,7 +115,7 @@ export default function MainContext({ product }: { product: Product[] }) {
           </Link>
         </div>
 
-        <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4 xl:grid-cols-5">
           {products
             .slice(-8)
             .reverse()

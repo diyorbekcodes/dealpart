@@ -1,5 +1,4 @@
 "use client";
-import { Product } from "@/app/(shop)/products/types/ProductsType";
 import { useRemoveWishlist } from "@/app/(shop)/wishlist/hook/useRemoveWishlist";
 import { useWishlist } from "@/app/(shop)/wishlist/hook/useWishlist";
 import useWishlistAdd from "@/app/(shop)/wishlist/hook/useWishlistAdd";
@@ -11,9 +10,27 @@ import { isWishlisted } from "@/app/(shop)/wishlist/hook/wishlistCache";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { memo, useState } from "react";
+export type CardProductData = {
+  id: string;
+  name: string;
+  price: number;
+  oldPrice?: number;
+  discountPercent?: number;
+  description?: string;
+  shortDescription?: string;
+  averageRating?: number;
+  reviewsCount?: number;
+  sku?: string;
+  slug?: string;
+  image?: string;
+  brand?: string | { name?: string };
+  images?: { url: string; alt?: string; isMain?: boolean }[];
+  variants?: { id: string }[];
+};
+
 type CardProductProps = {
-  product: Product;
-  mainImage: string;
+  product: CardProductData;
+  mainImage?: string;
 };
 function productImageSrc(url: string) {
   if (url.startsWith("http")) return url;
@@ -62,6 +79,15 @@ function CardProduct({ product, mainImage }: CardProductProps) {
       .format(price)
       .replace(/,/g, " ");
   }
+
+  const price = Number(product.price) || 0;
+  const oldPrice = Number(product.oldPrice) || 0;
+  const hasDiscount = oldPrice > price;
+  const discount = hasDiscount
+    ? Number(product.discountPercent) ||
+      Math.round(((oldPrice - price) / oldPrice) * 100)
+    : 0;
+  const rating = Math.round(Number(product.averageRating) || 0);
   return (
     <div>
         <Link
@@ -126,38 +152,32 @@ function CardProduct({ product, mainImage }: CardProductProps) {
                 <Star
                   key={star}
                   size={16}
-                  fill={
-                    star <= Math.round(product.averageRating)
-                      ? "yellow"
-                      : "transparent"
-                  }
+                  fill={star <= rating ? "yellow" : "transparent"}
                   color="yellow"
                 />
               ))}
             </div>
 
             <p className="text-[14px] font-bold text-[#6B7280]">
-              ({product.reviewsCount} reviews)
+              ({product.reviewsCount ?? 0} reviews)
             </p>
           </div>
 
           {/* PRICE */}
           <div className="mt-2 flex flex-col gap-2">
-            {product.oldPrice > product.price && (
+            {hasDiscount && (
               <p className="text-[16px] text-[#00000099] line-through">
-                {formatPrice(product.oldPrice)} UZS
+                {formatPrice(oldPrice)} UZS
               </p>
             )}
 
             <div className="flex items-center gap-2">
               <p className="text-base font-bold text-[#0c4bfa] sm:text-[22px]">
-                {formatPrice(product.price)} UZS
+                {formatPrice(price)} UZS
               </p>
 
-              {product.oldPrice > product.price && (
-                <p className="font-bold text-[#fd0404]">
-                  -{product.discountPercent}%
-                </p>
+              {hasDiscount && (
+                <p className="font-bold text-[#fd0404]">-{discount}%</p>
               )}
             </div>
           </div>

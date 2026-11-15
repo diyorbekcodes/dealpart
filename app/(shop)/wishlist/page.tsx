@@ -1,22 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import {
   Heart,
   ShoppingBag,
-  ShoppingCartPlus,
   ArrowRight,
- 
   ArrowLeft,
-  Star,
 } from "lucide-react";
 import { Spin } from "antd";
 import { useWishlist } from "./hook/useWishlist";
-import { useRemoveWishlist } from "./hook/useRemoveWishlist";
-import { useAddToCart } from "../../../hook/AddCart";
 import { useHasSession } from "@/hook/useHasSession";
-import { useState } from "react";
+import CardProduct from "@/components/ui/CardProduct";
 interface WishlistProduct {
   id: string;
   name: string;
@@ -46,25 +40,12 @@ interface WishlistItem {
   product: WishlistProduct;
 }
 
-function mediaUrl(url?: string) {
-  if (!url) return "";
-  if (url.startsWith("http")) return url;
-  return `https://oline-shop-backend.onrender.com${url}`;
-}
-
 export default function Wishlist() {
-  const router = useRouter();
-  const [addingId, setAddingId] = useState<string | null>(null);
   const { ready, hasSession } = useHasSession();
   const { data, isLoading, isError } = useWishlist();
-  const { mutate: removeWishlist } = useRemoveWishlist();
-  const { mutate: addToCart } = useAddToCart();
 
   const wishlist = data?.data;
   const items: WishlistItem[] = wishlist?.items ?? [];
-
-  const formatPrice = (price: number) =>
-    new Intl.NumberFormat("uz-UZ").format(price);
 
   if (!ready || (hasSession && isLoading)) {
     return (
@@ -165,177 +146,20 @@ export default function Wishlist() {
           </div>
         ) : (
           /* Product cards */
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4 xl:grid-cols-5">
             {items.map((item) => {
               const product = item.product;
-
               const mainImage =
                 product.images?.find((image) => image.isMain)?.url ||
                 product.images?.[0]?.url ||
                 product.image;
 
-              const hasDiscount =
-                product.oldPrice !== undefined &&
-                product.oldPrice > product.price;
-
               return (
-                <article
+                <CardProduct
                   key={item.id}
-                  className="relative flex h-full min-w-0 flex-col rounded-[12px] bg-white p-3 shadow-[0px_1px_3px_0px_#00000033] transition-shadow duration-300 hover:shadow-lg"
-                >
-                  {/* Image */}
-                  <div className="relative flex h-[180px] w-full items-center justify-center">
-                    {mainImage ? (
-                      <img
-                        src={mediaUrl(mainImage)}
-                        alt={product.name}
-                        loading="lazy"
-                        decoding="async"
-                        className="h-[180px] w-full rounded-lg bg-white object-contain"
-                      />
-                    ) : (
-                      <ShoppingBag size={45} className="text-gray-300" />
-                    )}
-
-                    {hasDiscount && (
-                      <span className="absolute left-1 top-1 rounded-md bg-red-50 px-2 py-1 text-xs font-bold text-red-500">
-                        Sale
-                      </span>
-                    )}
-
-                    <button
-                      type="button"
-                      aria-label="Remove from wishlist"
-                      title="Remove from wishlist"
-                      onClick={() => removeWishlist(product.id)}
-                      className="absolute right-1 top-1 flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-sm transition hover:scale-110 active:scale-90 disabled:opacity-50"
-                    >
-                      <Heart
-                        size={18}
-                        fill="#ef4444"
-                        color="#ef4444"
-                        className="transition-all duration-150"
-                      />
-                    </button>
-                  </div>
-
-                  {/* Product info */}
-                  <div className="mt-3 flex flex-1 flex-col">
-                    {product.brand && (
-                      <p className="mb-1 text-xs font-medium uppercase tracking-wide text-gray-400">
-                        {product.brand}
-                      </p>
-                    )}
-
-                    <div className="flex flex-col gap-2">
-                      <h2 className="line-clamp-1 text-[20px] font-bold text-[#023337]">
-                        {product.name}
-                      </h2>
-
-                      <p className="line-clamp-2 text-[16px] font-normal text-[#00000099]">
-                        {product.shortDescription || product.description || ""}
-                      </p>
-                    </div>
-
-                    {/* Rating */}
-                    <div className="mt-2 flex items-center gap-2">
-                      <div className="flex gap-0.5">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <Star
-                            key={star}
-                            size={14}
-                            fill={
-                              star <= Math.round(product.averageRating ?? 0)
-                                ? "#eab308"
-                                : "transparent"
-                            }
-                            color="#eab308"
-                          />
-                        ))}
-                      </div>
-
-                      <span className="text-xs font-bold text-[#6B7280]">
-                        ({product.reviewsCount ?? 0} reviews)
-                      </span>
-                    </div>
-
-                    {/* Price */}
-                    <div className="mt-3 flex flex-col gap-1">
-                      {hasDiscount && (
-                        <p className="text-sm text-[#00000099] line-through">
-                          {formatPrice(product.oldPrice!)} UZS
-                        </p>
-                      )}
-
-                      <div className="flex flex-wrap items-center gap-2">
-                        <p className="text-lg font-bold text-[#0c4bfa]">
-                          {formatPrice(product.price)} UZS
-                        </p>
-
-                        {hasDiscount && (
-                          <span className="text-sm font-bold text-red-500">
-                            -
-                            {product.discountPercent ??
-                              Math.round(
-                                ((product.oldPrice! - product.price) /
-                                  product.oldPrice!) *
-                                  100,
-                              )}
-                            %
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Buttons */}
-                    <div className="mt-auto flex items-center justify-between gap-2 pt-5">
-                      <Link
-                        href={`/products/${product.id}`}
-                        className="flex-1 rounded-lg bg-blue-600 px-2 py-2.5 text-center text-sm font-medium text-white transition hover:bg-blue-700 active:scale-95"
-                      >
-                        Hozir xarid qilish
-                      </Link>
-
-                      <button
-                        type="button"
-                        disabled={addingId === product.id}
-                        aria-label="Add to cart"
-                        onClick={() => {
-                          if (!localStorage.getItem("crmAccessToken")) {
-                            router.push("/login");
-                            return;
-                          }
-
-                          setAddingId(product.id);
-                          addToCart(
-                            {
-                              productId: product.id,
-                              variantId: product.variants?.[0]?.id,
-                              quantity: 1,
-                              product: {
-                                id: product.id,
-                                name: product.name,
-                                price: product.price,
-                                image: mainImage,
-                                sku: product.sku,
-                                brand:
-                                  typeof product.brand === "string"
-                                    ? product.brand
-                                    : undefined,
-                              },
-                            },
-                            {
-                              onSettled: () => setAddingId(null),
-                            },
-                          );
-                        }}
-                        className="flex h-10 w-11 shrink-0 items-center justify-center rounded-lg bg-[#18a8ad] text-white transition hover:bg-[#12969b] active:scale-95 disabled:opacity-50"
-                      >
-                        <ShoppingCartPlus size={20} />
-                      </button>
-                    </div>
-                  </div>
-                </article>
+                  product={product}
+                  mainImage={mainImage}
+                />
               );
             })}
           </div>
